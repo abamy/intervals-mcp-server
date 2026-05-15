@@ -14,30 +14,32 @@ from intervals_mcp_server.api.client import setup_api_client
 
 logger = logging.getLogger("intervals_icu_mcp_server")
 
-_mcp_api_key = os.getenv("MCP_API_KEY", "")
+_mcp_client_id = os.getenv("MCP_CLIENT_ID", "")
+_mcp_client_secret = os.getenv("MCP_CLIENT_SECRET", "")
+_mcp_server_url = os.getenv("MCP_SERVER_URL", "http://localhost:8000")
 
-_token_verifier = None
+_auth_server_provider = None
 _auth_settings = None
 
-if _mcp_api_key:
-    from intervals_mcp_server.auth import StaticTokenVerifier
+if _mcp_client_id and _mcp_client_secret:
+    from intervals_mcp_server.auth import SingleClientOAuthProvider
     from mcp.server.auth.settings import AuthSettings
 
-    _token_verifier = StaticTokenVerifier(_mcp_api_key)
-    # issuer_url is required by AuthSettings but is unused when no OAuth
-    # server provider is configured (resource_server_url=None, no auth routes).
+    _auth_server_provider = SingleClientOAuthProvider(_mcp_client_id, _mcp_client_secret)
+    # issuer_url must be the public HTTPS URL of this server so that
+    # Claude.ai can discover the OAuth endpoints via /.well-known/oauth-authorization-server
     _auth_settings = AuthSettings(
-        issuer_url=os.getenv("MCP_SERVER_URL", "http://localhost:8000"),
+        issuer_url=_mcp_server_url,
         resource_server_url=None,
     )
-    logger.info("Bearer token authentication enabled for HTTP transport.")
+    logger.info("OAuth authentication enabled for HTTP transport.")
 else:
-    logger.debug("MCP_API_KEY not set; HTTP endpoint is unauthenticated.")
+    logger.debug("MCP_CLIENT_ID/MCP_CLIENT_SECRET not set; HTTP endpoint is unauthenticated.")
 
 mcp: FastMCP = FastMCP(
     "intervals-icu",
     lifespan=setup_api_client,
     host=os.getenv("FASTMCP_HOST", "127.0.0.1"),
-    token_verifier=_token_verifier,
+    auth_server_provider=_auth_server_provider,
     auth=_auth_settings,
 )

@@ -89,8 +89,11 @@ cp .env.example .env
 | `INTERVALS_API_BASE_URL` | No | Defaults to `https://intervals.icu/api/v1` |
 | `MCP_TRANSPORT` | No | `stdio` (default), `sse`, `http`, or `streamable-http` |
 | `FASTMCP_HOST` | No | Bind host for HTTP transport (default `127.0.0.1`) |
-| `MCP_API_KEY` | No | Bearer token secret for HTTP transport auth. When set, all HTTP clients must send `Authorization: Bearer <value>`. Leave unset for stdio or private-network deployments. |
-| `MCP_SERVER_URL` | No | Public URL of this server (default `http://localhost:8000`). Used as the OAuth issuer metadata value when `MCP_API_KEY` is set. |
+| `MCP_CLIENT_ID` | No | OAuth client ID. Must match what is entered in Claude.ai's connector settings. |
+| `MCP_CLIENT_SECRET` | No | OAuth client secret / access token. Must match what is entered in Claude.ai's connector settings. |
+| `MCP_SERVER_URL` | No | Public HTTPS URL of this server (default `http://localhost:8000`). Required for OAuth discovery when `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET` are set. |
+
+When `MCP_CLIENT_ID` and `MCP_CLIENT_SECRET` are both set the server enables OAuth 2.0 authorization code + PKCE protection on all HTTP endpoints. FastMCP publishes `/.well-known/oauth-authorization-server` so Claude.ai can auto-discover the token endpoint. stdio transport is unaffected.
 
 ---
 
