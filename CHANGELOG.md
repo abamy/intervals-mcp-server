@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- OAuth 2.0 (authorization code + PKCE) for the HTTP transport. Optional; activates
+  only when `MCP_CLIENT_ID` and `MCP_CLIENT_SECRET` are set (`MCP_SERVER_URL` required
+  for discovery). stdio transport is unaffected.
+- Activity write tools: `update_activity`, `delete_activity`, `create_manual_activity`,
+  `bulk_create_manual_activities`; `"gap"` histogram type.
+- Activity analysis tools: `get_activity_curve`, `get_activity_best_efforts`,
+  `get_activity_segments`, `get_activity_interval_stats`, `get_activity_map`,
+  `get_activity_power_vs_hr`, `get_activity_hr_load_model`,
+  `get_activity_power_spike_model`, `get_activity_time_at_hr`,
+  `get_activity_weather_summary`.
+- Activity search tools: `search_activities`, `interval_search`,
+  `get_activities_around`, `get_activities_by_ids`, `get_activity_tags`.
+- Activity interval editing tools: `update_activity_intervals`,
+  `update_activity_interval`, `delete_activity_intervals`, `split_activity_interval`.
+- Training plan tools: `get_training_plan`, `change_training_plan`,
+  `apply_plan_changes`, `apply_plan_to_calendar`, `change_athlete_plans_bulk`.
+
+### Fixed
+
+- Structured workouts created via `create_workout`/`update_workout`/`schedule_workout`
+  now render in Intervals.icu: steps are sent as workout-builder DSL text in
+  `description` (a raw `workout_doc` JSON is stored but never parsed/rendered).
+- OAuth token exchange on mcp >= 1.23 (set `token_endpoint_auth_method`), protected
+  resource metadata (RFC 9728), and acceptance of an empty `scope=` from clients.
+
 ## [0.1.0] - 2025-06-01
 
 ### Added

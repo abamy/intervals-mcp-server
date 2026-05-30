@@ -39,6 +39,14 @@ In the Render dashboard under **Environment**, add:
 | `ATHLETE_ID` | `your_athlete_id` | Your Intervals.icu athlete ID (e.g. `i12345`) |
 | `API_KEY` | `your_api_key` | Your Intervals.icu API key |
 
+Optional — enable OAuth 2.0 to protect the endpoint (see [Securing the endpoint](#securing-the-endpoint-oauth)):
+
+| Key | Value | Description |
+|-----|-------|-------------|
+| `MCP_CLIENT_ID` | `intervals-icu` | OAuth client ID; must match the connector config **exactly** |
+| `MCP_CLIENT_SECRET` | `<random secret>` | OAuth client secret / access token; must match the connector |
+| `MCP_SERVER_URL` | `https://your-service-name.onrender.com` | Public HTTPS URL (no `/mcp`); required for OAuth discovery |
+
 ### 3. Deploy and Verify
 
 1. Click **Create Web Service** — Render will build the Docker image and deploy
@@ -46,7 +54,15 @@ In the Render dashboard under **Environment**, add:
 3. Note your service URL: `https://your-service-name.onrender.com`
 4. Test by opening `https://your-service-name.onrender.com/mcp` in a browser — you should get a response from the server
 
-> **⚠️ Security Warning:** Claude does not currently authenticate when connecting to remote MCP servers. This means your Render endpoint is publicly accessible — anyone who discovers the URL can query and **mutate** your Intervals.icu data (e.g. create/update events). Do not share your service URL publicly. If this is a concern, use the [Local Setup](#local-setup-alternative) instead, which keeps everything on your machine behind stdio.
+> **⚠️ Security Warning:** Without OAuth (see below), your Render endpoint is publicly accessible — anyone who discovers the URL can query and **mutate** your Intervals.icu data. Either enable OAuth or do not share your service URL publicly. For full isolation, use the [Local Setup](#local-setup-alternative) (stdio).
+
+### Securing the endpoint (OAuth)
+
+Set `MCP_CLIENT_ID`, `MCP_CLIENT_SECRET`, and `MCP_SERVER_URL` (see table above) to require OAuth 2.0 (authorization code + PKCE) on all HTTP requests. Notes:
+
+- The values on the server must match the connector's OAuth Client ID / Secret **exactly** (case-sensitive).
+- `MCP_SERVER_URL` must be the public HTTPS URL **without** `/mcp`; the connector URL must **end** with `/mcp`.
+- Leave all three unset to keep the endpoint unauthenticated.
 
 ## Connecting Claude
 
@@ -54,7 +70,8 @@ In the Render dashboard under **Environment**, add:
 2. Click **Add**
 3. Fill in:
    - **Name:** `Intervals.icu`
-   - **URL:** `https://your-service-name.onrender.com/mcp`
+   - **URL:** `https://your-service-name.onrender.com/mcp` (must end with `/mcp`)
+   - If OAuth is enabled, also set **OAuth Client ID** = `MCP_CLIENT_ID` and **OAuth Client Secret** = `MCP_CLIENT_SECRET` (exact, case-sensitive match)
 
 Open a new conversation and ask "What MCP tools do you have available?" to confirm the connection.
 
@@ -76,9 +93,17 @@ Once connected, the following tools are available:
 - `get_activity_details` — Get detailed information for a specific activity
 - `get_activity_intervals` — Get interval data for a specific activity
 - `get_activity_streams` — Get time-series stream data (power, HR, cadence, etc.)
-- `get_activity_histogram` — Get a power, heart rate, or pace histogram
+- `get_activity_histogram` — Get a power, heart rate, pace, or gap histogram
 - `get_activity_messages` — Get messages/comments on an activity
 - `add_activity_message` — Add a message/comment to an activity
+- `update_activity`, `delete_activity`, `create_manual_activity`, `bulk_create_manual_activities` — Edit, remove, or create activities
+
+**Activity analysis**
+- `get_activity_curve`, `get_activity_best_efforts`, `get_activity_segments`, `get_activity_interval_stats`, `get_activity_map`, `get_activity_power_vs_hr`, `get_activity_hr_load_model`, `get_activity_power_spike_model`, `get_activity_time_at_hr`, `get_activity_weather_summary`
+
+**Activity search & interval editing**
+- `search_activities`, `interval_search`, `get_activities_around`, `get_activities_by_ids`, `get_activity_tags`
+- `update_activity_intervals`, `update_activity_interval`, `delete_activity_intervals`, `split_activity_interval`
 
 **Events**
 - `get_events` — Retrieve upcoming events (workouts, races, etc.)
@@ -92,6 +117,9 @@ Once connected, the following tools are available:
 - `get_training_summary` — Get a training load summary
 - `get_athlete_power_curves` — Get best power output curves for selected durations and time periods
 - `get_athlete_zones` — Get athlete training zones (power, HR, pace, etc.)
+
+**Training Plans**
+- `get_training_plan`, `change_training_plan`, `apply_plan_changes`, `apply_plan_to_calendar`, `change_athlete_plans_bulk`
 
 **Custom Items**
 - `get_custom_items` — List custom items
@@ -108,10 +136,13 @@ Once connected, the following tools are available:
 - `update_workout` — Update an existing library workout
 - `schedule_workout` — Schedule a library workout onto the calendar
 
+> **Structured workouts:** pass steps via `workout_doc`. The server renders them to Intervals.icu workout-builder text so the platform parses them and draws the step chart. Use renderable target units — power `%ftp`/`w`, HR `%hr`/`%lthr`, pace `%pace` or absolute pace (e.g. `4:30/km`); avoid `pace_zone`/`power_zone` for pace runs.
+
 ## Troubleshooting Render Deployment
 
 - **Service won't start** — Check Render logs for build errors. Ensure all environment variables are set.
 - **Claude/ChatGPT can't connect** — Verify the URL ends with `/mcp` and is publicly accessible. Try opening it in a browser.
+- **"Authorization failed" with OAuth** — `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET` must match the connector exactly (case-sensitive), `MCP_SERVER_URL` must be the public HTTPS URL without `/mcp`, and the connector URL must end with `/mcp`. Remove and re-add the connector to clear cached credentials.
 - **API errors** — Double-check your `ATHLETE_ID` and `API_KEY` values. Verify your Intervals.icu API key is valid.
 - **Free tier cold starts** — Render free-tier services sleep after inactivity. The first request may take 30–60 seconds to wake up.
 
