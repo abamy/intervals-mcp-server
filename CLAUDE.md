@@ -18,49 +18,49 @@ This is a **Model Context Protocol (MCP) server** that connects Claude and other
 
 ```
 src/intervals_mcp_server/
-  server.py          # Entry point; imports & re-exports all tools and resources
-  mcp_instance.py    # Shared FastMCP singleton (import this to register tools)
-  server_setup.py    # Transport selection & server startup logic
-  config.py          # Config dataclass + singleton loaded from env vars
-  api/
-    client.py        # make_intervals_request() — all HTTP calls go here
-  tools/
-    activities.py    # get_activities, get_activity_details, get_activity_intervals,
-                     # get_activity_streams, get_activity_histogram, get_activity_messages,
-                     # add_activity_message
-    events.py        # get_events, get_races, get_event_by_id, add_or_update_event,
-                     # delete_event, delete_events_by_date_range
-    wellness.py      # get_wellness_data
-    athlete.py       # get_athlete_zones
-    power_curves.py  # get_athlete_power_curves
-    training_summary.py # get_training_summary
-    custom_items.py  # get_custom_items, get_custom_item_by_id, create_custom_item,
-                     # update_custom_item, delete_custom_item
-    workout_library.py  # get_workout_folders, list_workouts, get_workout,
-                        # create_workout, update_workout, schedule_workout
-  resources/
-    guide.py         # intervals-icu://guide MCP resource — usage guide for LLMs
-  utils/
-    formatting.py    # Data formatting helpers (format_activity_summary, etc.)
-    validation.py    # Input validation (athlete ID, dates, activity type)
-    dates.py         # Date range utilities
-    types.py         # Dataclasses & enums: Value, Step, WorkoutDoc, TransportAliases, etc.
+server.py          # Entry point; imports & re-exports all tools and resources
+mcp_instance.py    # Shared FastMCP singleton (import this to register tools)
+server_setup.py    # Transport selection & server startup logic
+config.py          # Config dataclass + singleton loaded from env vars
+api/
+  client.py        # make_intervals_request() — all HTTP calls go here
+tools/
+  activities.py    # get_activities, get_activity_details, get_activity_intervals,
+                   # get_activity_streams, get_activity_histogram, get_activity_messages,
+                   # add_activity_message
+  events.py        # get_events, get_races, get_event_by_id, add_or_update_event,
+                   # delete_event, delete_events_by_date_range
+  wellness.py      # get_wellness_data
+  athlete.py       # get_athlete_zones
+  power_curves.py  # get_athlete_power_curves
+  training_summary.py # get_training_summary
+  custom_items.py  # get_custom_items, get_custom_item_by_id, create_custom_item,
+                   # update_custom_item, delete_custom_item
+  workout_library.py  # get_workout_folders, list_workouts, get_workout,
+                      # create_workout, update_workout, schedule_workout
+resources/
+  guide.py         # intervals-icu://guide MCP resource — usage guide for LLMs
+utils/
+  formatting.py    # Data formatting helpers (format_activity_summary, etc.)
+  validation.py    # Input validation (athlete ID, dates, activity type)
+  dates.py         # Date range utilities
+  types.py         # Dataclasses & enums: Value, Step, WorkoutDoc, TransportAliases, etc.
 
 tests/
-  test_server.py                 # Main tool tests (monkeypatched API calls)
-  test_activities_date_filter.py # Date filter logic tests
-  test_add_or_update_event.py    # Event creation tests
-  test_formatting.py             # Formatting utility tests
-  test_make_intervals_request.py # API client tests
-  test_training_summary.py       # Training summary tests
-  test_validation.py             # Validation function tests
-  test_value.py                  # Value dataclass tests
-  test_workout_library.py        # Workout library tool tests
-  test_guide_resource.py         # MCP resource tests
-  test_tool_annotations.py       # Tool annotation tests
-  test_server_config.py          # Server config tests
-  sample_data.py                 # Shared mock data for tests
-  ressources/                    # Static test fixtures (JSON, text files)
+test_server.py                 # Main tool tests (monkeypatched API calls)
+test_activities_date_filter.py # Date filter logic tests
+test_add_or_update_event.py    # Event creation tests
+test_formatting.py             # Formatting utility tests
+test_make_intervals_request.py # API client tests
+test_training_summary.py       # Training summary tests
+test_validation.py             # Validation function tests
+test_value.py                  # Value dataclass tests
+test_workout_library.py        # Workout library tool tests
+test_guide_resource.py         # MCP resource tests
+test_tool_annotations.py       # Tool annotation tests
+test_server_config.py          # Server config tests
+sample_data.py                 # Shared mock data for tests
+ressources/                    # Static test fixtures (JSON, text files)
 ```
 
 ---
@@ -147,7 +147,7 @@ from intervals_mcp_server.mcp_instance import mcp
 
 @mcp.tool(annotations=ToolAnnotations(title="...", readOnlyHint=True, destructiveHint=False))
 async def my_tool(...) -> str:
-    ...
+  ...
 ```
 
 `server.py` imports all tool modules to trigger registration, then re-exports the functions in `__all__` for test compatibility.
@@ -158,11 +158,11 @@ Every call to the Intervals.icu API goes through `api/client.py:make_intervals_r
 
 ```python
 result = await make_intervals_request(
-    url=f"/athlete/{athlete_id}/activities",
-    api_key=api_key,        # falls back to config.api_key if empty
-    params={"oldest": start_date, "newest": end_date},
-    method="GET",           # or "POST" / "PUT"
-    data={"key": "value"},  # body for POST/PUT
+  url=f"/athlete/{athlete_id}/activities",
+  api_key=api_key,        # falls back to config.api_key if empty
+  params={"oldest": start_date, "newest": end_date},
+  method="GET",           # or "POST" / "PUT"
+  data={"key": "value"},  # body for POST/PUT
 )
 ```
 
@@ -170,7 +170,7 @@ Error responses always return `{"error": True, "message": "..."}`. Always check 
 
 ```python
 if isinstance(result, dict) and "error" in result:
-    return f"Error: {result.get('message', 'Unknown error')}"
+  return f"Error: {result.get('message', 'Unknown error')}"
 ```
 
 ### Configuration Singleton
@@ -209,16 +209,16 @@ All three support `to_dict()` / `from_dict()` / `to_json()` / `from_json()` roun
 
 - All tool functions are `async`; tests use `@pytest.mark.asyncio`.
 - Mock HTTP by monkeypatching `make_intervals_request` or the `httpx_client`:
-  ```python
-  import asyncio
-  monkeypatch.setattr("intervals_mcp_server.server.make_intervals_request",
-                      lambda *a, **kw: asyncio.coroutine(lambda: mock_data)())
-  ```
+```python
+import asyncio
+monkeypatch.setattr("intervals_mcp_server.server.make_intervals_request",
+                    lambda *a, **kw: asyncio.coroutine(lambda: mock_data)())
+```
 - Set `API_KEY` and `ATHLETE_ID` env vars at the top of each test file before importing server modules:
-  ```python
-  os.environ.setdefault("API_KEY", "test")
-  os.environ.setdefault("ATHLETE_ID", "i1")
-  ```
+```python
+os.environ.setdefault("API_KEY", "test")
+os.environ.setdefault("ATHLETE_ID", "i1")
+```
 - Shared realistic mock data lives in `tests/sample_data.py`.
 - Test files are named `test_*.py`; test functions are named `test_*`.
 
@@ -236,3 +236,14 @@ All three support `to_dict()` / `from_dict()` / `to_json()` / `from_json()` roun
 ## MCP Resource
 
 The server exposes one MCP resource at `intervals-icu://guide` (registered in `resources/guide.py`). It returns a plain-text usage guide describing key concepts (Activities vs Events vs Wellness), metric definitions (CTL, ATL, TSB), and recommended tool call sequences for common coaching workflows. LLM clients should load this resource at the start of coaching conversations.
+
+## Operational Notes / Gotchas
+
+### Structured workouts must be builder DSL
+Intervals.icu parses/computes/renders steps only when sent as workout-builder DSL text in `description`. A raw `workout_doc` JSON posted to `/workouts` or `/events` is stored but never rendered (empty chart, null metrics); sending both, the raw
+doc wins. Always emit steps via `str(WorkoutDoc)` into `description`. `_power`/`_pace` are resolved OUTPUT fields, never inputs.
+
+### OAuth / HTTP transport
+Activates only when `MCP_CLIENT_ID` + `MCP_CLIENT_SECRET` are set (`auth.py`, `mcp_instance.py`). Gotchas: IDs/secret must match the connector exactly (case-sensitive) and the connector URL must end in `/mcp`; `resource_server_url` must be set
+(RFC 9728 metadata); the client must set `token_endpoint_auth_method="client_secret_post"` (mcp >= 1.23 defaults to None → 401 "Unsupported auth method"); `validate_scope` accepts empty scope; prod resolves mcp unbounded (>=1.4.0) so test OAuth
+against the latest SDK.
