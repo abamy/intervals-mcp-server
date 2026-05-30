@@ -73,6 +73,9 @@ class TestSingleClientOAuthProvider:
         assert client is not None
         assert client.client_id == "myclient"
         assert client.client_secret == "mysecret"
+        # Must be explicit; mcp >= 1.23 defaults to None and the token endpoint
+        # then rejects every request with "Unsupported auth method: None".
+        assert client.token_endpoint_auth_method == "client_secret_post"
 
     @pytest.mark.asyncio
     async def test_client_accepts_any_redirect_uri(self):

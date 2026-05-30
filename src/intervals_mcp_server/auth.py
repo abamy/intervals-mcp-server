@@ -87,6 +87,10 @@ class SingleClientOAuthProvider:
             redirect_uris=[AnyUrl("https://placeholder.invalid")],
             grant_types=["authorization_code"],
             response_types=["code"],
+            # Must be set explicitly: mcp >= 1.23 defaults this to None and the
+            # token endpoint then rejects every request with "Unsupported auth
+            # method: None". Clients send the secret in the token request body.
+            token_endpoint_auth_method="client_secret_post",
         )
 
     async def register_client(self, client_info: OAuthClientInformationFull) -> None:
