@@ -165,10 +165,15 @@ async def get_athlete_power_curves(
     if not curves:
         return "Error: At least one curve must be selected (this_season, last_season, or a date range)."
 
+    # f1, f2, f3 are marked required in the spec (comparison-curve filters);
+    # send empty JSON arrays so the request is spec-compliant.
     params: dict[str, Any] = {
         "curves": curves,
         "type": activity_type,
         "includeRanks": False,
+        "f1": json.dumps([]),
+        "f2": json.dumps([]),
+        "f3": json.dumps([]),
     }
     if indoor_outdoor:
         params["filters"] = json.dumps(
@@ -176,7 +181,7 @@ async def get_athlete_power_curves(
         )
 
     result = await make_intervals_request(
-        url=f"/athlete/{athlete_id_to_use}/power-curves",
+        url=f"/athlete/{athlete_id_to_use}/power-curves.json",
         params=params,
     )
 
