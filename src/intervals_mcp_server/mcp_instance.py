@@ -28,11 +28,17 @@ if _mcp_client_id and _mcp_client_secret:
     from mcp.server.auth.settings import AuthSettings
 
     _auth_server_provider = SingleClientOAuthProvider(_mcp_client_id, _mcp_client_secret)
-    # issuer_url must be the public HTTPS URL of this server so that
-    # Claude.ai can discover the OAuth endpoints via /.well-known/oauth-authorization-server
+    # This server is both the authorization server and the resource server.
+    # issuer_url            -> publishes /.well-known/oauth-authorization-server (AS metadata)
+    # resource_server_url   -> publishes /.well-known/oauth-protected-resource (RFC 9728)
+    #                          and adds the resource_metadata pointer to the 401
+    #                          WWW-Authenticate header. Claude.ai's connector flow
+    #                          requires this protected-resource metadata to authorize.
+    # Both point to the same public HTTPS URL of this server.
+    _server_url = AnyHttpUrl(_mcp_server_url)
     _auth_settings = AuthSettings(
-        issuer_url=AnyHttpUrl(_mcp_server_url),
-        resource_server_url=None,
+        issuer_url=_server_url,
+        resource_server_url=_server_url,
     )
     logger.info("OAuth authentication enabled for HTTP transport.")
 else:
