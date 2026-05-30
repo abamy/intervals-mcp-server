@@ -41,7 +41,7 @@ class _AuthCode:
 
 
 class _FlexibleClient(OAuthClientInformationFull):
-    """OAuthClientInformationFull that accepts any redirect URI from the caller.
+    """OAuthClientInformationFull that accepts any redirect URI and scope.
 
     This is safe for personal deployments because the authorization code
     flow still requires PKCE (code_challenge / code_verifier), so a
@@ -52,6 +52,16 @@ class _FlexibleClient(OAuthClientInformationFull):
         if redirect_uri is None:
             raise InvalidRedirectUriError("redirect_uri must be specified")
         return redirect_uri
+
+    def validate_scope(self, requested_scope: Any) -> Any:
+        # Accept whatever scope the client requests. This single-client
+        # deployment does not enforce scopes (the client_secret is the only
+        # credential). The base class would reject any scope — including the
+        # empty "scope=" that MCP clients such as Claude.ai send — because the
+        # client is registered without scopes, which breaks the auth flow.
+        if requested_scope is None:
+            return None
+        return [s for s in requested_scope.split(" ") if s]
 
 
 class SingleClientOAuthProvider:

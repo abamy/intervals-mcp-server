@@ -86,6 +86,20 @@ class TestSingleClientOAuthProvider:
         assert client.validate_redirect_uri(redirect) == redirect
 
     @pytest.mark.asyncio
+    async def test_client_accepts_any_scope(self):
+        from intervals_mcp_server.auth import SingleClientOAuthProvider  # pylint: disable=import-outside-toplevel
+
+        provider = SingleClientOAuthProvider("myclient", "mysecret")
+        client = await provider.get_client("myclient")
+        assert client is not None
+        # None scope passes through unchanged
+        assert client.validate_scope(None) is None
+        # Empty scope (what MCP clients like Claude.ai send) must not be rejected
+        assert client.validate_scope("") == []
+        # Arbitrary scopes are accepted even though the client registered none
+        assert client.validate_scope("read write") == ["read", "write"]
+
+    @pytest.mark.asyncio
     async def test_load_access_token_accepts_correct_secret(self):
         from intervals_mcp_server.auth import SingleClientOAuthProvider  # pylint: disable=import-outside-toplevel
 
