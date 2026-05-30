@@ -106,6 +106,7 @@ Once connected, the following tools are available:
 - `get_workout` — Get full workout detail including step-by-step structure
 - `create_workout` — Create a new workout in a library folder
 - `update_workout` — Update an existing library workout
+- `schedule_workout` — Schedule a library workout onto the calendar
 
 ## Troubleshooting Render Deployment
 

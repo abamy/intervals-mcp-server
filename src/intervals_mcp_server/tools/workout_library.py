@@ -54,6 +54,19 @@ _WORKOUT_FULL_EXTRA_FIELDS: list[str] = [
 ]
 
 
+def _serialize_workout_doc(workout_doc: WorkoutDoc | dict[str, Any]) -> dict[str, Any]:
+    """Convert a workout_doc to a JSON-serializable dict for the API payload.
+
+    FastMCP/pydantic deserializes the ``workout_doc`` argument into a
+    ``WorkoutDoc`` dataclass instance, which ``json.dumps`` cannot serialize.
+    Call ``to_dict()`` to produce a plain dict. A dict is accepted as-is so
+    callers passing an already-serialized doc (e.g. from the API) still work.
+    """
+    if isinstance(workout_doc, WorkoutDoc):
+        return workout_doc.to_dict()
+    return workout_doc
+
+
 def _pick_fields(record: dict[str, Any], fields: list[str]) -> dict[str, Any]:
     """Return a new dict containing only the requested keys that exist and are non-empty."""
     result: dict[str, Any] = {}
@@ -357,7 +370,7 @@ async def create_workout(
     if description:
         data["description"] = description
     if workout_doc is not None:
-        data["workout_doc"] = workout_doc
+        data["workout_doc"] = _serialize_workout_doc(workout_doc)
     if moving_time:
         data["moving_time"] = moving_time
     if tags:
@@ -433,7 +446,7 @@ async def update_workout(
     if folder_id is not None:
         data["folder_id"] = folder_id
     if workout_doc is not None:
-        data["workout_doc"] = workout_doc
+        data["workout_doc"] = _serialize_workout_doc(workout_doc)
     if tags is not None:
         data["tags"] = tags
     if moving_time:

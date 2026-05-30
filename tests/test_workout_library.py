@@ -362,6 +362,56 @@ def test_create_workout_success(monkeypatch):
     assert body["tags"] == ["sweet-spot"]
 
 
+def test_create_workout_serializes_workout_doc(monkeypatch):
+    """A structured WorkoutDoc instance is converted to a JSON-serializable dict."""
+    from intervals_mcp_server.utils.types import Step, Value, ValueUnits, WorkoutDoc
+
+    captured: dict = {}
+
+    async def fake_request(*_a, **kwargs):
+        captured.update(kwargs)
+        return {"id": 7, "name": "Structured", "type": "Ride", "folder_id": 10}
+
+    _patch_workout_lib(monkeypatch, fake_request)
+    doc = WorkoutDoc(
+        description="VO2",
+        steps=[Step(duration=900, power=Value(value=80, units=ValueUnits.PERCENT_FTP), warmup=True)],
+    )
+    result = asyncio.run(
+        _get_tool("create_workout")(
+            name="Structured",
+            workout_type="Ride",
+            folder_id=10,
+            athlete_id="i1",
+            workout_doc=doc,
+        )
+    )
+    assert "Successfully created workout" in result
+    body = captured["data"]
+    # Must be a plain dict, not a WorkoutDoc instance, and round-trip through json.
+    assert isinstance(body["workout_doc"], dict)
+    assert body["workout_doc"]["steps"][0]["power"]["units"] == "%ftp"
+    json.dumps(body)  # would raise TypeError if a dataclass instance leaked through
+
+
+def test_update_workout_serializes_workout_doc(monkeypatch):
+    """update_workout also converts a WorkoutDoc instance to a serializable dict."""
+    from intervals_mcp_server.utils.types import Step, WorkoutDoc
+
+    captured: dict = {}
+
+    async def fake_request(*_a, **kwargs):
+        captured.update(kwargs)
+        return {"id": 1, "name": "Updated"}
+
+    _patch_workout_lib(monkeypatch, fake_request)
+    doc = WorkoutDoc(steps=[Step(duration=600, cooldown=True)])
+    asyncio.run(_get_tool("update_workout")(workout_id=1, athlete_id="i1", workout_doc=doc))
+    body = captured["data"]
+    assert isinstance(body["workout_doc"], dict)
+    json.dumps(body)
+
+
 def test_create_workout_error(monkeypatch):
     """API error returns error message."""
     async def fake_request(*_a, **_kw):
