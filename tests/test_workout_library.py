@@ -362,8 +362,13 @@ def test_create_workout_success(monkeypatch):
     assert body["tags"] == ["sweet-spot"]
 
 
-def test_create_workout_serializes_workout_doc(monkeypatch):
-    """A structured WorkoutDoc instance is converted to a JSON-serializable dict."""
+def test_create_workout_sends_workout_doc_as_dsl_description(monkeypatch):
+    """A structured WorkoutDoc is sent as workout-builder DSL text in description.
+
+    Intervals.icu only parses/renders steps provided as DSL text; a raw
+    workout_doc JSON is stored but never rendered. So no workout_doc field is
+    sent and the steps must appear as DSL in description.
+    """
     from intervals_mcp_server.utils.types import Step, Value, ValueUnits, WorkoutDoc
 
     captured: dict = {}
@@ -388,14 +393,16 @@ def test_create_workout_serializes_workout_doc(monkeypatch):
     )
     assert "Successfully created workout" in result
     body = captured["data"]
-    # Must be a plain dict, not a WorkoutDoc instance, and round-trip through json.
-    assert isinstance(body["workout_doc"], dict)
-    assert body["workout_doc"]["steps"][0]["power"]["units"] == "%ftp"
-    json.dumps(body)  # would raise TypeError if a dataclass instance leaked through
+    # Raw workout_doc must NOT be sent (it would render empty).
+    assert "workout_doc" not in body
+    # Steps are emitted as DSL text in the description.
+    assert "VO2" in body["description"]
+    assert "80%" in body["description"]
+    json.dumps(body)
 
 
-def test_update_workout_serializes_workout_doc(monkeypatch):
-    """update_workout also converts a WorkoutDoc instance to a serializable dict."""
+def test_update_workout_sends_workout_doc_as_dsl_description(monkeypatch):
+    """update_workout also sends the workout_doc as DSL text in description."""
     from intervals_mcp_server.utils.types import Step, WorkoutDoc
 
     captured: dict = {}
@@ -408,7 +415,8 @@ def test_update_workout_serializes_workout_doc(monkeypatch):
     doc = WorkoutDoc(steps=[Step(duration=600, cooldown=True)])
     asyncio.run(_get_tool("update_workout")(workout_id=1, athlete_id="i1", workout_doc=doc))
     body = captured["data"]
-    assert isinstance(body["workout_doc"], dict)
+    assert "workout_doc" not in body
+    assert "description" in body
     json.dumps(body)
 
 
@@ -523,7 +531,10 @@ def test_schedule_workout_success(monkeypatch):
     assert body["name"] == "Tempo 2x20"
     assert body["type"] == "Ride"
     assert body["moving_time"] == 3600
-    assert "workout_doc" in body
+    # The DSL description is copied so Intervals.icu re-parses and renders the
+    # steps; the raw workout_doc is intentionally not copied (renders empty).
+    assert "workout_doc" not in body
+    assert body["description"] == SAMPLE_WORKOUT_A["description"]
 
 
 def test_schedule_workout_invalid_date(monkeypatch):

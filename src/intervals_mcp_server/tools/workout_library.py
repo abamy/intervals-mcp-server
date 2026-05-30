@@ -54,17 +54,24 @@ _WORKOUT_FULL_EXTRA_FIELDS: list[str] = [
 ]
 
 
-def _serialize_workout_doc(workout_doc: WorkoutDoc | dict[str, Any]) -> dict[str, Any]:
-    """Convert a workout_doc to a JSON-serializable dict for the API payload.
+def _workout_doc_to_description(
+    workout_doc: WorkoutDoc, description: str = ""
+) -> str:
+    """Render a workout_doc as Intervals.icu workout-builder DSL text.
 
-    FastMCP/pydantic deserializes the ``workout_doc`` argument into a
-    ``WorkoutDoc`` dataclass instance, which ``json.dumps`` cannot serialize.
-    Call ``to_dict()`` to produce a plain dict. A dict is accepted as-is so
-    callers passing an already-serialized doc (e.g. from the API) still work.
+    Intervals.icu only parses, computes (duration, load), and renders the step
+    chart when the steps are provided as workout-builder DSL text in the
+    ``description`` field. A raw ``workout_doc`` JSON posted to the API is stored
+    but never parsed, producing an empty workout. ``str(WorkoutDoc)`` emits the
+    DSL, so we always send the steps that way (this is what ``add_or_update_event``
+    already does).
+
+    When a standalone ``description`` is supplied and the doc has no description
+    of its own, it is used as the doc's description line.
     """
-    if isinstance(workout_doc, WorkoutDoc):
-        return workout_doc.to_dict()
-    return workout_doc
+    if description and not workout_doc.description:
+        workout_doc.description = description
+    return str(workout_doc)
 
 
 def _pick_fields(record: dict[str, Any], fields: list[str]) -> dict[str, Any]:
@@ -351,8 +358,11 @@ async def create_workout(
         folder_id: Target library folder ID (required). Use ``get_workout_folders`` to discover IDs.
         athlete_id: The Intervals.icu athlete ID (optional, will use ATHLETE_ID from .env if not provided)
         api_key: The Intervals.icu API key (optional, will use API_KEY from .env if not provided)
-        description: Workout description (optional)
+        description: Workout description (optional). Used when ``workout_doc`` is not provided.
         workout_doc: Structured step definition (optional). Same format as used by ``add_or_update_event``.
+                     The steps are sent to Intervals.icu as workout-builder DSL text in the
+                     description so the platform parses, computes load/duration, and renders the
+                     step chart. (A raw workout_doc JSON is stored but never rendered.)
         moving_time: Expected total duration in seconds (optional)
         tags: List of tag strings (optional)
         indoor: Whether this is an indoor workout (optional)
@@ -367,10 +377,12 @@ async def create_workout(
         "folder_id": folder_id,
     }
 
-    if description:
-        data["description"] = description
+    # Steps must go in `description` as workout-builder DSL so Intervals.icu
+    # parses and renders them; a raw workout_doc JSON is stored but not rendered.
     if workout_doc is not None:
-        data["workout_doc"] = _serialize_workout_doc(workout_doc)
+        data["description"] = _workout_doc_to_description(workout_doc, description)
+    elif description:
+        data["description"] = description
     if moving_time:
         data["moving_time"] = moving_time
     if tags:
@@ -428,9 +440,10 @@ async def update_workout(
         athlete_id: The Intervals.icu athlete ID (optional, will use ATHLETE_ID from .env if not provided)
         api_key: The Intervals.icu API key (optional, will use API_KEY from .env if not provided)
         name: New workout name (optional)
-        description: New workout description (optional)
+        description: New workout description (optional). Used when ``workout_doc`` is not provided.
         folder_id: Move workout to this folder (optional). Use ``get_workout_folders`` to discover IDs.
-        workout_doc: New structured step definition (optional)
+        workout_doc: New structured step definition (optional). Sent as workout-builder DSL text in
+                     the description so Intervals.icu parses and renders the steps.
         tags: New list of tag strings (optional)
         moving_time: New expected duration in seconds (optional)
     """
@@ -441,12 +454,14 @@ async def update_workout(
     data: dict[str, Any] = {}
     if name:
         data["name"] = name
-    if description:
-        data["description"] = description
     if folder_id is not None:
         data["folder_id"] = folder_id
+    # Steps must go in `description` as workout-builder DSL so Intervals.icu
+    # parses and renders them; a raw workout_doc JSON is stored but not rendered.
     if workout_doc is not None:
-        data["workout_doc"] = _serialize_workout_doc(workout_doc)
+        data["description"] = _workout_doc_to_description(workout_doc, description)
+    elif description:
+        data["description"] = description
     if tags is not None:
         data["tags"] = tags
     if moving_time:
@@ -530,8 +545,9 @@ async def schedule_workout(
         "type": workout.get("type", "Ride"),
     }
 
-    if workout.get("workout_doc"):
-        event_data["workout_doc"] = workout["workout_doc"]
+    # Copy the workout-builder DSL description (Intervals.icu re-parses it to
+    # render the event's steps). A raw workout_doc is intentionally NOT copied:
+    # the events endpoint stores it without parsing, producing an empty workout.
     if workout.get("description"):
         event_data["description"] = workout["description"]
     if workout.get("moving_time"):
