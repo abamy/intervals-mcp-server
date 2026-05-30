@@ -17,6 +17,8 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+from pydantic import AnyUrl
+
 from mcp.server.auth.provider import (
     AccessToken,
     AuthorizationParams,
@@ -72,7 +74,7 @@ class SingleClientOAuthProvider:
             client_id=self._client_id,
             client_secret=self._client_secret,
             # Placeholder satisfies min_length=1; validate_redirect_uri is overridden
-            redirect_uris=["https://placeholder.invalid"],
+            redirect_uris=[AnyUrl("https://placeholder.invalid")],
             grant_types=["authorization_code"],
             response_types=["code"],
         )
@@ -107,7 +109,7 @@ class SingleClientOAuthProvider:
         self, client: OAuthClientInformationFull, authorization_code: _AuthCode
     ) -> OAuthToken:
         self._codes.pop(authorization_code.code, None)
-        return OAuthToken(access_token=self._client_secret, token_type="bearer")
+        return OAuthToken(access_token=self._client_secret, token_type="Bearer")
 
     async def load_access_token(self, token: str) -> AccessToken | None:
         if secrets.compare_digest(token, self._client_secret):

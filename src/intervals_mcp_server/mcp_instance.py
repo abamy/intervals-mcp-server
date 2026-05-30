@@ -8,6 +8,8 @@ the server module and tool modules without creating cyclic imports.
 import logging
 import os
 
+from pydantic import AnyHttpUrl
+
 from mcp.server.fastmcp import FastMCP
 
 from intervals_mcp_server.api.client import setup_api_client
@@ -29,7 +31,7 @@ if _mcp_client_id and _mcp_client_secret:
     # issuer_url must be the public HTTPS URL of this server so that
     # Claude.ai can discover the OAuth endpoints via /.well-known/oauth-authorization-server
     _auth_settings = AuthSettings(
-        issuer_url=_mcp_server_url,
+        issuer_url=AnyHttpUrl(_mcp_server_url),
         resource_server_url=None,
     )
     logger.info("OAuth authentication enabled for HTTP transport.")

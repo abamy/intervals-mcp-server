@@ -14,6 +14,26 @@ os.environ.setdefault("API_KEY", "test")
 os.environ.setdefault("ATHLETE_ID", "i1")
 
 
+@pytest.fixture(autouse=True)
+def _restore_intervals_modules():
+    """Snapshot and restore intervals_mcp_server.* in sys.modules around each test.
+
+    ``_fresh_mcp`` deletes and re-imports these modules to exercise the
+    credential-conditional wiring. Without restoration, other test files keep
+    references to the original module objects while sys.modules holds the
+    freshly imported ones, which breaks monkeypatching and the shared httpx
+    client in later tests. Restoring the original objects keeps the suite
+    order-independent.
+    """
+    snapshot = {k: v for k, v in sys.modules.items() if "intervals_mcp_server" in k}
+    try:
+        yield
+    finally:
+        for key in [k for k in sys.modules if "intervals_mcp_server" in k]:
+            del sys.modules[key]
+        sys.modules.update(snapshot)
+
+
 def _fresh_mcp(monkeypatch, client_id=None, client_secret=None):
     """Reimport mcp_instance with a clean module cache and given credentials."""
     if client_id is not None:
@@ -120,7 +140,6 @@ class TestSingleClientOAuthProvider:
     @pytest.mark.asyncio
     async def test_expired_authorization_code_rejected(self):
         from intervals_mcp_server.auth import SingleClientOAuthProvider, _AuthCode  # pylint: disable=import-outside-toplevel
-        from pydantic import AnyUrl  # pylint: disable=import-outside-toplevel
 
         provider = SingleClientOAuthProvider("myclient", "mysecret")
         expired_code = _AuthCode(
