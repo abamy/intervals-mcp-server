@@ -56,7 +56,7 @@ Fields and Metrics:
 Athlete Zones:
   Power zones, heart rate zones, pace zones etc. Zones are sport-specific
   and athlete-specific. Always query the current zones for the relevant
-  sport before prescribing intensity targets. Intervals.icu is the single 
+  sport before prescribing intensity targets. Intervals.icu is the single
   source of truth for athlete zones used in training prescriptions.
 
 RECOMMENDED WORKFLOWS
@@ -82,12 +82,21 @@ Workout library:
   5. update_workout(workout_id)    ← edit an existing library workout
   6. schedule_workout(id, date)    ← place a library workout on the calendar
 
+Structured workouts (IMPORTANT):
+  Provide steps via the `workout_doc` argument (create_workout / update_workout /
+  add_or_update_event). The server renders them to Intervals.icu workout-builder
+  text so the platform parses them and draws the step chart. Use these target
+  units so steps render: power `%ftp`/`w`, HR `%hr`/`%lthr`, pace `%pace` or
+  absolute (e.g. 4:30/km). Avoid `pace_zone`/`power_zone` for pace runs — zones
+  may not render a chart. `_power`/`_pace` are resolved OUTPUT fields; never set
+  them as inputs.
+
 Reviewing a period:
   1. get_training_summary(start_date, end_date)
   2. get_wellness_data(start_date, end_date)    ← if wellness detail needed
 
 Context efficiency:
-  1. Make use of the 'compact' flags available for some tool calls to reduce 
+  1. Make use of the 'compact' flags available for some tool calls to reduce
     the burden on the context window.
 
 AVAILABLE TOOLS
