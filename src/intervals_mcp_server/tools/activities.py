@@ -79,7 +79,11 @@ def _filter_activities_by_date(
 
     filtered: list[dict[str, Any]] = []
     for activity in activities:
-        raw = activity.get("start_date_local") or activity.get("startTime") or activity.get("start_date", "")
+        raw = (
+            activity.get("start_date_local")
+            or activity.get("startTime")
+            or activity.get("start_date", "")
+        )
         if not raw:
             continue
         try:
@@ -114,7 +118,9 @@ def _format_activities_response(
     return activities_summary
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activities", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Get Activities", readOnlyHint=True, destructiveHint=False)
+)
 async def get_activities(  # pylint: disable=too-many-arguments,too-many-return-statements,too-many-branches,too-many-positional-arguments
     athlete_id: str = "",
     api_key: str = "",
@@ -178,7 +184,11 @@ async def get_activities(  # pylint: disable=too-many-arguments,too-many-return-
     return _format_activities_response(activities, athlete_id_to_use, include_unnamed, compact)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Details", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Details", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_details(activity_id: str, api_key: str = "") -> str:
     """Get detailed information for a specific activity from Intervals.icu
 
@@ -219,7 +229,11 @@ async def get_activity_details(activity_id: str, api_key: str = "") -> str:
     return detailed_view
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Intervals", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Intervals", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_intervals(activity_id: str, api_key: str = "") -> str:
     """Get interval data for a specific activity from Intervals.icu
 
@@ -249,9 +263,7 @@ async def get_activity_intervals(activity_id: str, api_key: str = "") -> str:
 
     # Fetch activity details to get ignore flags
     ignore_flags_text = ""
-    activity_result = await make_intervals_request(
-        url=f"/activity/{activity_id}", api_key=api_key
-    )
+    activity_result = await make_intervals_request(url=f"/activity/{activity_id}", api_key=api_key)
     if isinstance(activity_result, dict) and "error" not in activity_result:
         ignore_flags_text = format_ignore_flags(activity_result)
 
@@ -259,7 +271,11 @@ async def get_activity_intervals(activity_id: str, api_key: str = "") -> str:
     return ignore_flags_text + format_intervals(result)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Histogram", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Histogram", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_histogram(
     activity_id: str,
     histogram_type: str,
@@ -310,7 +326,11 @@ async def get_activity_histogram(
     return json.dumps(result)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Streams", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Streams", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_streams(
     activity_id: str,
     api_key: str = "",
@@ -389,7 +409,11 @@ async def get_activity_streams(
     return streams_summary
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Messages", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Messages", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_messages(activity_id: str, api_key: str = "") -> str:
     """Get messages (notes/comments) for a specific activity from Intervals.icu
 
@@ -421,7 +445,11 @@ async def get_activity_messages(activity_id: str, api_key: str = "") -> str:
     return output
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Add Activity Message", readOnlyHint=False, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Add Activity Message", readOnlyHint=False, destructiveHint=False
+    )
+)
 async def add_activity_message(
     activity_id: str,
     content: str,
@@ -454,7 +482,9 @@ async def add_activity_message(
     return f"Message appears to have been added to activity {activity_id}, but no ID was returned. Please verify manually."
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Update Activity", readOnlyHint=False, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Update Activity", readOnlyHint=False, destructiveHint=False)
+)
 async def update_activity(
     activity_id: str,
     fields: dict[str, Any],
@@ -486,7 +516,9 @@ async def update_activity(
     return f"Successfully updated activity {activity_id}."
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Delete Activity", readOnlyHint=False, destructiveHint=True))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Delete Activity", readOnlyHint=False, destructiveHint=True)
+)
 async def delete_activity(activity_id: str, api_key: str = "") -> str:
     """Permanently delete an activity from Intervals.icu.
 
@@ -509,7 +541,11 @@ async def delete_activity(activity_id: str, api_key: str = "") -> str:
     return f"Successfully deleted activity {activity_id}."
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Create Manual Activity", readOnlyHint=False, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Create Manual Activity", readOnlyHint=False, destructiveHint=False
+    )
+)
 async def create_manual_activity(
     activity: dict[str, Any],
     athlete_id: str = "",
@@ -547,7 +583,11 @@ async def create_manual_activity(
     return "Manual activity created."
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Bulk Create Manual Activities", readOnlyHint=False, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Bulk Create Manual Activities", readOnlyHint=False, destructiveHint=False
+    )
+)
 async def bulk_create_manual_activities(
     activities: list[dict[str, Any]],
     athlete_id: str = "",

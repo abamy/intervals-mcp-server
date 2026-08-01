@@ -434,9 +434,6 @@ class Step:  # pylint: disable=too-many-instance-attributes
             val += "\n"
         return val
 
-    def __str__(self) -> str:
-        return self._to_str()
-
 
 @dataclass
 class SportSettings:

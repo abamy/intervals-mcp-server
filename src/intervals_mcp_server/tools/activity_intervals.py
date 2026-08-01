@@ -13,7 +13,11 @@ from intervals_mcp_server.api.client import make_intervals_request
 from intervals_mcp_server.mcp_instance import mcp  # noqa: F401
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Update Activity Intervals", readOnlyHint=False, destructiveHint=True))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Update Activity Intervals", readOnlyHint=False, destructiveHint=True
+    )
+)
 async def update_activity_intervals(
     activity_id: str,
     intervals: list[dict[str, Any]],
@@ -47,7 +51,11 @@ async def update_activity_intervals(
     return f"Successfully updated {len(intervals)} interval(s) on activity {activity_id}."
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Update Activity Interval", readOnlyHint=False, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Update Activity Interval", readOnlyHint=False, destructiveHint=False
+    )
+)
 async def update_activity_interval(
     activity_id: str,
     interval_id: int,
@@ -78,7 +86,11 @@ async def update_activity_interval(
     return f"Successfully upserted interval {interval_id} on activity {activity_id}."
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Delete Activity Intervals", readOnlyHint=False, destructiveHint=True))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Delete Activity Intervals", readOnlyHint=False, destructiveHint=True
+    )
+)
 async def delete_activity_intervals(
     activity_id: str,
     interval_ids: list[int],
@@ -107,7 +119,11 @@ async def delete_activity_intervals(
     return f"Successfully deleted {len(interval_ids)} interval(s) from activity {activity_id}."
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Split Activity Interval", readOnlyHint=False, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Split Activity Interval", readOnlyHint=False, destructiveHint=False
+    )
+)
 async def split_activity_interval(
     activity_id: str,
     split_at: int,

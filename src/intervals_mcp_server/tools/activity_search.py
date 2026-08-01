@@ -31,7 +31,9 @@ def _format_activity_list(activities: list[dict[str, Any]], header: str) -> str:
     return out
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Search Activities", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Search Activities", readOnlyHint=True, destructiveHint=False)
+)
 async def search_activities(
     query: str,
     athlete_id: str = "",
@@ -70,7 +72,9 @@ async def search_activities(
     return _format_activity_list(activities, f"Activity search results for '{query}':")
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Interval Search", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Interval Search", readOnlyHint=True, destructiveHint=False)
+)
 async def interval_search(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     min_secs: int,
     max_secs: int,
@@ -132,7 +136,11 @@ async def interval_search(  # pylint: disable=too-many-arguments,too-many-positi
     return _format_activity_list(activities, header)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activities Around", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activities Around", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activities_around(
     activity_id: str,
     athlete_id: str = "",
@@ -172,7 +180,11 @@ async def get_activities_around(
     return _format_activity_list(activities, f"Activities around {activity_id}:")
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activities by IDs", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activities by IDs", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activities_by_ids(
     activity_ids: list[str],
     athlete_id: str = "",
@@ -212,7 +224,9 @@ async def get_activities_by_ids(
     return json.dumps(result, indent=2, default=str)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Tags", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Get Activity Tags", readOnlyHint=True, destructiveHint=False)
+)
 async def get_activity_tags(
     athlete_id: str = "",
     api_key: str = "",

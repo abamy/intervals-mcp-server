@@ -96,7 +96,9 @@ class SingleClientOAuthProvider:
     async def register_client(self, client_info: OAuthClientInformationFull) -> None:
         raise NotImplementedError("Dynamic client registration is not supported")
 
-    async def authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str:
+    async def authorize(
+        self, client: OAuthClientInformationFull, params: AuthorizationParams
+    ) -> str:
         code = secrets.token_urlsafe(32)
         self._codes[code] = _AuthCode(
             code=code,

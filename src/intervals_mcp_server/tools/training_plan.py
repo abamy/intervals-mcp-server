@@ -19,7 +19,9 @@ from intervals_mcp_server.mcp_instance import mcp  # noqa: F401
 config = get_config()
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Training Plan", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Get Training Plan", readOnlyHint=True, destructiveHint=False)
+)
 async def get_training_plan(
     athlete_id: str = "",
     api_key: str = "",
@@ -43,7 +45,11 @@ async def get_training_plan(
     return json.dumps(result, indent=2, default=str)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Change Training Plan", readOnlyHint=False, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Change Training Plan", readOnlyHint=False, destructiveHint=False
+    )
+)
 async def change_training_plan(
     athlete_id: str = "",
     api_key: str = "",
@@ -85,7 +91,11 @@ async def change_training_plan(
     return f"Successfully updated training plan for athlete {athlete_id_to_use}."
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Apply Plan Changes", readOnlyHint=False, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Apply Plan Changes", readOnlyHint=False, destructiveHint=False
+    )
+)
 async def apply_plan_changes(
     athlete_id: str = "",
     api_key: str = "",
@@ -107,7 +117,11 @@ async def apply_plan_changes(
     return f"Successfully applied plan changes to calendar for athlete {athlete_id_to_use}."
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Apply Plan to Calendar", readOnlyHint=False, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Apply Plan to Calendar", readOnlyHint=False, destructiveHint=False
+    )
+)
 async def apply_plan_to_calendar(
     folder_id: int,
     start_date_local: str,
@@ -149,7 +163,11 @@ async def apply_plan_to_calendar(
     return f"Successfully applied plan (folder {folder_id}) starting {start_date_local} for athlete {athlete_id_to_use}."
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Change Athlete Plans (Bulk)", readOnlyHint=False, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Change Athlete Plans (Bulk)", readOnlyHint=False, destructiveHint=False
+    )
+)
 async def change_athlete_plans_bulk(
     plan_changes: list[dict[str, Any]],
     api_key: str = "",

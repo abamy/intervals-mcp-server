@@ -239,7 +239,9 @@ def _extract_sport_zones(setting: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Athlete Zones", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Get Athlete Zones", readOnlyHint=True, destructiveHint=False)
+)
 async def get_athlete_zones(
     athlete_id: str = "",
     api_key: str = "",

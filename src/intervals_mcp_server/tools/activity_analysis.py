@@ -21,7 +21,11 @@ from intervals_mcp_server.mcp_instance import mcp  # noqa: F401
 CURVE_TYPES = {"hr", "pace", "power", "power-multi"}
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Curve", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Curve", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_curve(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     activity_id: str,
     curve_type: str,
@@ -43,7 +47,9 @@ async def get_activity_curve(  # pylint: disable=too-many-arguments,too-many-pos
         streams: For "power-multi" only. Comma-separated list of stream names (default "watts").
     """
     if curve_type not in CURVE_TYPES:
-        return f"Invalid curve_type '{curve_type}'. Must be one of: {', '.join(sorted(CURVE_TYPES))}."
+        return (
+            f"Invalid curve_type '{curve_type}'. Must be one of: {', '.join(sorted(CURVE_TYPES))}."
+        )
 
     endpoint_map = {
         "hr": "hr-curve.json",
@@ -72,7 +78,11 @@ async def get_activity_curve(  # pylint: disable=too-many-arguments,too-many-pos
     return json.dumps(result, default=str)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Best Efforts", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Best Efforts", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_best_efforts(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     activity_id: str,
     stream: str,
@@ -130,7 +140,11 @@ async def get_activity_best_efforts(  # pylint: disable=too-many-arguments,too-m
     return json.dumps(result, default=str)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Segments", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Segments", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_segments(activity_id: str, api_key: str = "") -> str:
     """Get segments (e.g. Strava segments) detected within an activity."""
     result = await make_intervals_request(
@@ -142,7 +156,11 @@ async def get_activity_segments(activity_id: str, api_key: str = "") -> str:
     return json.dumps(result, default=str)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Time at HR", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Time at HR", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_time_at_hr(activity_id: str, api_key: str = "") -> str:
     """Get the per-bpm time-at-heart-rate distribution for an activity."""
     result = await make_intervals_request(
@@ -154,7 +172,11 @@ async def get_activity_time_at_hr(activity_id: str, api_key: str = "") -> str:
     return json.dumps(result, default=str)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Weather Summary", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Weather Summary", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_weather_summary(
     activity_id: str,
     api_key: str = "",
@@ -185,7 +207,11 @@ async def get_activity_weather_summary(
     return json.dumps(result, default=str)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Interval Stats", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Interval Stats", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_interval_stats(
     activity_id: str,
     start_index: int,
@@ -211,7 +237,9 @@ async def get_activity_interval_stats(
     return json.dumps(result, default=str)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Map", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Get Activity Map", readOnlyHint=True, destructiveHint=False)
+)
 async def get_activity_map(
     activity_id: str,
     api_key: str = "",
@@ -246,7 +274,11 @@ async def get_activity_map(
     return json.dumps(result, default=str)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Power vs HR", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Power vs HR", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_power_vs_hr(activity_id: str, api_key: str = "") -> str:
     """Get the power-vs-heart-rate scatter data for an activity."""
     result = await make_intervals_request(
@@ -258,7 +290,11 @@ async def get_activity_power_vs_hr(activity_id: str, api_key: str = "") -> str:
     return json.dumps(result, default=str)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity HR Load Model", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity HR Load Model", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_hr_load_model(activity_id: str, api_key: str = "") -> str:
     """Get the heart-rate-based training-load model for an activity."""
     result = await make_intervals_request(
@@ -270,7 +306,11 @@ async def get_activity_hr_load_model(activity_id: str, api_key: str = "") -> str
     return json.dumps(result, default=str)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Activity Power Spike Model", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Activity Power Spike Model", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_activity_power_spike_model(activity_id: str, api_key: str = "") -> str:
     """Get the power-spike-detection model for an activity."""
     result = await make_intervals_request(

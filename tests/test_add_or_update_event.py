@@ -34,6 +34,7 @@ from intervals_mcp_server.utils.types import (
 # Helper: fake request that captures the payload sent to the API
 # ---------------------------------------------------------------------------
 
+
 class FakeRequest:
     """Callable that records every invocation and returns a canned response."""
 
@@ -193,7 +194,11 @@ def test_add_event_swim_workout(monkeypatch):
                 reps=4,
                 text="4x200m",
                 steps=[
-                    Step(distance=200, pace=Value(value=85, units=ValueUnits.PERCENT_PACE), text="Fast"),
+                    Step(
+                        distance=200,
+                        pace=Value(value=85, units=ValueUnits.PERCENT_PACE),
+                        text="Fast",
+                    ),
                     Step(distance=100, text="Easy recovery"),
                 ],
             ),
@@ -256,8 +261,12 @@ def test_add_event_row_workout(monkeypatch):
                 reps=6,
                 text="6x3min HR intervals",
                 steps=[
-                    Step(duration=180, hr=Value(value=85, units=ValueUnits.PERCENT_HR), text="Hard"),
-                    Step(duration=120, hr=Value(value=65, units=ValueUnits.PERCENT_HR), text="Easy"),
+                    Step(
+                        duration=180, hr=Value(value=85, units=ValueUnits.PERCENT_HR), text="Hard"
+                    ),
+                    Step(
+                        duration=120, hr=Value(value=65, units=ValueUnits.PERCENT_HR), text="Easy"
+                    ),
                 ],
             ),
             Step(duration=300, cooldown=True, text="Cooldown"),
@@ -629,7 +638,9 @@ def test_add_event_with_text_comments(monkeypatch):
             Step(text="Remember to hydrate"),
             Step(duration=600, warmup=True, text="Easy spin"),
             Step(text=""),  # blank line separator
-            Step(duration=1200, power=Value(value=75, units=ValueUnits.PERCENT_FTP), text="Endurance"),
+            Step(
+                duration=1200, power=Value(value=75, units=ValueUnits.PERCENT_FTP), text="Endurance"
+            ),
             Step(text="Good job!"),
         ],
     )
@@ -815,13 +826,15 @@ def test_response_includes_training_context(monkeypatch):
 
 def test_response_omits_missing_training_context(monkeypatch):
     """When API response lacks training context fields, they are omitted from message."""
-    fake = FakeRequest(response={
-        "id": "e999",
-        "start_date_local": "2026-03-11T00:00:00",
-        "category": "WORKOUT",
-        "name": "test",
-        "type": "Ride",
-    })
+    fake = FakeRequest(
+        response={
+            "id": "e999",
+            "start_date_local": "2026-03-11T00:00:00",
+            "category": "WORKOUT",
+            "name": "test",
+            "type": "Ride",
+        }
+    )
     _patch_request(monkeypatch, fake)
 
     result = asyncio.run(

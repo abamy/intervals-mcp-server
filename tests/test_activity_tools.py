@@ -297,9 +297,7 @@ def test_power_curves_sends_required_filters_and_json_ext(monkeypatch):
     from intervals_mcp_server.tools import power_curves as pc_mod
 
     fake = FakeRequest(response={"list": []})
-    monkeypatch.setattr(
-        "intervals_mcp_server.tools.power_curves.make_intervals_request", fake
-    )
+    monkeypatch.setattr("intervals_mcp_server.tools.power_curves.make_intervals_request", fake)
     asyncio.run(pc_mod.get_athlete_power_curves(activity_type="Ride", athlete_id="i1"))
     assert fake.last["url"] == "/athlete/i1/power-curves.json"
     p = fake.last["params"]
@@ -312,8 +310,6 @@ def test_activity_streams_uses_json_ext(monkeypatch):
     from intervals_mcp_server.tools import activities as act_mod
 
     fake = FakeRequest(response=[])
-    monkeypatch.setattr(
-        "intervals_mcp_server.tools.activities.make_intervals_request", fake
-    )
+    monkeypatch.setattr("intervals_mcp_server.tools.activities.make_intervals_request", fake)
     asyncio.run(act_mod.get_activity_streams("a1"))
     assert fake.last["url"] == "/activity/a1/streams.json"

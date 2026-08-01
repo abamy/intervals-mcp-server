@@ -91,8 +91,9 @@ def _build_planned_summary(
         distance += ev.get("distance", 0) or 0
 
         sport = ev.get("type") or ev.get("category") or "Other"
-        agg = sport_agg.setdefault(sport, {"count": 0, "tss": 0.0,
-                                            "duration_secs": 0, "distance_m": 0.0})
+        agg = sport_agg.setdefault(
+            sport, {"count": 0, "tss": 0.0, "duration_secs": 0, "distance_m": 0.0}
+        )
         agg["count"] += 1
         agg["tss"] += ev.get("icu_training_load", 0) or 0
         agg["duration_secs"] += ev.get("moving_time", 0) or 0
@@ -130,13 +131,9 @@ def _group_events_by_week(
     """
     # Build a sorted list of week start dates
     week_starts = sorted(
-        datetime.strptime(w["date"], "%Y-%m-%d").date()
-        for w in summary_weeks
-        if w.get("date")
+        datetime.strptime(w["date"], "%Y-%m-%d").date() for w in summary_weeks if w.get("date")
     )
-    grouped: dict[str, list[dict[str, Any]]] = {
-        ws.strftime("%Y-%m-%d"): [] for ws in week_starts
-    }
+    grouped: dict[str, list[dict[str, Any]]] = {ws.strftime("%Y-%m-%d"): [] for ws in week_starts}
 
     for ev in events:
         date_str = ev.get("start_date_local", "")
@@ -171,7 +168,9 @@ def _build_by_sport(
             "duration_secs": cat.get("time", 0),
         }
         set_if(sport, "distance_m", cat.get("distance"), positive=True, transform=_round1)
-        set_if(sport, "elevation_m", cat.get("total_elevation_gain"), positive=True, transform=_round1)
+        set_if(
+            sport, "elevation_m", cat.get("total_elevation_gain"), positive=True, transform=_round1
+        )
         set_if(sport, "eftp_w", cat.get("eftp"), transform=_round1)
         set_if(sport, "eftp_w_kg", cat.get("eftpPerKg"), transform=_round1)
 
@@ -203,8 +202,10 @@ def _build_period_totals(
             name = cat.get("category")
             if not name:
                 continue
-            agg = sport_agg.setdefault(name, {"count": 0, "tss": 0.0, "duration_secs": 0,
-                                               "distance_m": 0.0, "elevation_m": 0.0})
+            agg = sport_agg.setdefault(
+                name,
+                {"count": 0, "tss": 0.0, "duration_secs": 0, "distance_m": 0.0, "elevation_m": 0.0},
+            )
             agg["count"] += cat.get("count", 0)
             agg["tss"] += cat.get("training_load", 0) or 0
             agg["duration_secs"] += cat.get("time", 0)
@@ -461,7 +462,11 @@ def _build_result(
     return strip_nulls(result)
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Training Summary", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(
+        title="Get Training Summary", readOnlyHint=True, destructiveHint=False
+    )
+)
 async def get_training_summary(
     start_date: str = "",
     end_date: str = "",
@@ -530,30 +535,29 @@ async def get_training_summary(
     )
 
     # Handle errors from any of the calls
-    for label, raw in [("athlete-summary", summary_raw), ("activities", activities_raw),
-                       ("wellness", wellness_raw), ("events", events_raw)]:
+    for label, raw in [
+        ("athlete-summary", summary_raw),
+        ("activities", activities_raw),
+        ("wellness", wellness_raw),
+        ("events", events_raw),
+    ]:
         if isinstance(raw, dict) and "error" in raw:
             return f"Error fetching {label}: {raw.get('message', 'Unknown error')}"
 
     # Normalise to lists
-    summary_weeks: list[dict[str, Any]] = (
-        summary_raw if isinstance(summary_raw, list) else []
-    )
+    summary_weeks: list[dict[str, Any]] = summary_raw if isinstance(summary_raw, list) else []
     activities_list: list[dict[str, Any]] = (
         activities_raw if isinstance(activities_raw, list) else []
     )
-    wellness_list: list[dict[str, Any]] = (
-        wellness_raw if isinstance(wellness_raw, list) else []
-    )
-    events_list: list[dict[str, Any]] = (
-        events_raw if isinstance(events_raw, list) else []
-    )
+    wellness_list: list[dict[str, Any]] = wellness_raw if isinstance(wellness_raw, list) else []
+    events_list: list[dict[str, Any]] = events_raw if isinstance(events_raw, list) else []
 
     # Sort athlete-summary into chronological order by week date
     summary_weeks.sort(key=lambda w: w.get("date", ""))
 
     today = datetime.now()
-    result = _build_result(summary_weeks, activities_list, wellness_list,
-                           events_list, start_date, end_date, today)
+    result = _build_result(
+        summary_weeks, activities_list, wellness_list, events_list, start_date, end_date, today
+    )
 
     return json.dumps(result, separators=(",", ":"))

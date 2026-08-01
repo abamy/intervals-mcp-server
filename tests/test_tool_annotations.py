@@ -26,32 +26,112 @@ import intervals_mcp_server.tools.workout_library  # noqa: E402, F401
 
 EXPECTED_ANNOTATIONS = {
     "get_activities": {"title": "Get Activities", "readOnlyHint": True, "destructiveHint": False},
-    "get_activity_details": {"title": "Get Activity Details", "readOnlyHint": True, "destructiveHint": False},
-    "get_activity_intervals": {"title": "Get Activity Intervals", "readOnlyHint": True, "destructiveHint": False},
-    "get_activity_streams": {"title": "Get Activity Streams", "readOnlyHint": True, "destructiveHint": False},
-    "get_activity_messages": {"title": "Get Activity Messages", "readOnlyHint": True, "destructiveHint": False},
-    "add_activity_message": {"title": "Add Activity Message", "readOnlyHint": False, "destructiveHint": False},
+    "get_activity_details": {
+        "title": "Get Activity Details",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+    },
+    "get_activity_intervals": {
+        "title": "Get Activity Intervals",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+    },
+    "get_activity_streams": {
+        "title": "Get Activity Streams",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+    },
+    "get_activity_messages": {
+        "title": "Get Activity Messages",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+    },
+    "add_activity_message": {
+        "title": "Add Activity Message",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+    },
     "get_events": {"title": "Get Events", "readOnlyHint": True, "destructiveHint": False},
     "get_races": {"title": "Get Races", "readOnlyHint": True, "destructiveHint": False},
     "get_event_by_id": {"title": "Get Event by ID", "readOnlyHint": True, "destructiveHint": False},
-    "add_or_update_event": {"title": "Add or Update Event", "readOnlyHint": False, "destructiveHint": False},
+    "add_or_update_event": {
+        "title": "Add or Update Event",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+    },
     "delete_event": {"title": "Delete Event", "readOnlyHint": False, "destructiveHint": True},
-    "delete_events_by_date_range": {"title": "Delete Events by Date Range", "readOnlyHint": False, "destructiveHint": True},
-    "get_wellness_data": {"title": "Get Wellness Data", "readOnlyHint": True, "destructiveHint": False},
-    "get_custom_items": {"title": "Get Custom Items", "readOnlyHint": True, "destructiveHint": False},
-    "get_custom_item_by_id": {"title": "Get Custom Item by ID", "readOnlyHint": True, "destructiveHint": False},
-    "create_custom_item": {"title": "Create Custom Item", "readOnlyHint": False, "destructiveHint": False},
-    "update_custom_item": {"title": "Update Custom Item", "readOnlyHint": False, "destructiveHint": False},
-    "delete_custom_item": {"title": "Delete Custom Item", "readOnlyHint": False, "destructiveHint": True},
-    "get_training_summary": {"title": "Get Training Summary", "readOnlyHint": True, "destructiveHint": False},
-    "get_athlete_zones": {"title": "Get Athlete Zones", "readOnlyHint": True, "destructiveHint": False},
-    "get_athlete_power_curves": {"title": "Get Athlete Power Curves", "readOnlyHint": True, "destructiveHint": False},
-    "get_workout_folders": {"title": "Get Workout Folders", "readOnlyHint": True, "destructiveHint": False},
+    "delete_events_by_date_range": {
+        "title": "Delete Events by Date Range",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+    },
+    "get_wellness_data": {
+        "title": "Get Wellness Data",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+    },
+    "get_custom_items": {
+        "title": "Get Custom Items",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+    },
+    "get_custom_item_by_id": {
+        "title": "Get Custom Item by ID",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+    },
+    "create_custom_item": {
+        "title": "Create Custom Item",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+    },
+    "update_custom_item": {
+        "title": "Update Custom Item",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+    },
+    "delete_custom_item": {
+        "title": "Delete Custom Item",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+    },
+    "get_training_summary": {
+        "title": "Get Training Summary",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+    },
+    "get_athlete_zones": {
+        "title": "Get Athlete Zones",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+    },
+    "get_athlete_power_curves": {
+        "title": "Get Athlete Power Curves",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+    },
+    "get_workout_folders": {
+        "title": "Get Workout Folders",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+    },
     "list_workouts": {"title": "List Workouts", "readOnlyHint": True, "destructiveHint": False},
     "get_workout": {"title": "Get Workout", "readOnlyHint": True, "destructiveHint": False},
-    "create_workout": {"title": "Create Library Workout", "readOnlyHint": False, "destructiveHint": False},
-    "update_workout": {"title": "Update Library Workout", "readOnlyHint": False, "destructiveHint": False},
-    "schedule_workout": {"title": "Schedule Workout to Calendar", "readOnlyHint": False, "destructiveHint": False},
+    "create_workout": {
+        "title": "Create Library Workout",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+    },
+    "update_workout": {
+        "title": "Update Library Workout",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+    },
+    "schedule_workout": {
+        "title": "Schedule Workout to Calendar",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+    },
 }
 
 
@@ -112,12 +192,8 @@ def test_no_tool_missing_annotations():
     """Ensure no registered tool is missing annotations entirely."""
     tool_map = _get_tool_map()
     for tool_name, tool in tool_map.items():
-        assert tool.annotations is not None, (
-            f"Tool '{tool_name}' is missing annotations"
-        )
-        assert tool.annotations.title is not None, (
-            f"Tool '{tool_name}' is missing title annotation"
-        )
+        assert tool.annotations is not None, f"Tool '{tool_name}' is missing annotations"
+        assert tool.annotations.title is not None, f"Tool '{tool_name}' is missing title annotation"
         assert tool.annotations.readOnlyHint is not None, (
             f"Tool '{tool_name}' is missing readOnlyHint annotation"
         )

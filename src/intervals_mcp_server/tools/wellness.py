@@ -20,7 +20,9 @@ from intervals_mcp_server.mcp_instance import mcp  # noqa: F401
 config = get_config()
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Wellness Data", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Get Wellness Data", readOnlyHint=True, destructiveHint=False)
+)
 async def get_wellness_data(
     athlete_id: str = "",
     api_key: str = "",
@@ -102,6 +104,9 @@ async def get_wellness_data(
 
     wellness_summary = "Wellness Data:\n\n"
     for entry in entries:
-        wellness_summary += format_wellness_entry(entry, fields=fields_set, include_all_fields=include_all_fields) + "\n\n"
+        wellness_summary += (
+            format_wellness_entry(entry, fields=fields_set, include_all_fields=include_all_fields)
+            + "\n\n"
+        )
 
     return wellness_summary

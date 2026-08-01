@@ -205,8 +205,16 @@ def test_format_wellness_entry_multiple_fields():
 
 def test_wellness_fields_constant():
     """WELLNESS_FIELDS should contain the expected section names."""
-    expected = {"training", "sport_info", "vital_signs", "sleep",
-                "menstrual", "subjective", "nutrition", "activity"}
+    expected = {
+        "training",
+        "sport_info",
+        "vital_signs",
+        "sleep",
+        "menstrual",
+        "subjective",
+        "nutrition",
+        "activity",
+    }
     assert WELLNESS_FIELDS == expected
 
 
@@ -418,9 +426,27 @@ def test_format_power_curves():
             "start": "2025-09-29T00:00:00",
             "end": "2026-03-14T00:00:00",
             "data_points": [
-                {"secs": 5, "watts": 780, "activity_id": "i100", "watts_per_kg": 10.4, "wkg_activity_id": "i100"},
-                {"secs": 60, "watts": 380, "activity_id": "i102", "watts_per_kg": 5.07, "wkg_activity_id": "i102"},
-                {"secs": 3600, "watts": 210, "activity_id": "i107", "watts_per_kg": 2.8, "wkg_activity_id": "i107"},
+                {
+                    "secs": 5,
+                    "watts": 780,
+                    "activity_id": "i100",
+                    "watts_per_kg": 10.4,
+                    "wkg_activity_id": "i100",
+                },
+                {
+                    "secs": 60,
+                    "watts": 380,
+                    "activity_id": "i102",
+                    "watts_per_kg": 5.07,
+                    "wkg_activity_id": "i102",
+                },
+                {
+                    "secs": 3600,
+                    "watts": 210,
+                    "activity_id": "i107",
+                    "watts_per_kg": 2.8,
+                    "wkg_activity_id": "i107",
+                },
             ],
         },
     ]

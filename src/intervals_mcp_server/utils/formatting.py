@@ -437,7 +437,9 @@ def _format_other_fields(entries: dict[str, Any], known_keys: set[str]) -> list[
     return other_lines
 
 
-def format_wellness_entry(entries: dict[str, Any], fields: set[str] | None = None, include_all_fields: bool = False) -> str:
+def format_wellness_entry(
+    entries: dict[str, Any], fields: set[str] | None = None, include_all_fields: bool = False
+) -> str:
     """Format wellness entry data into a readable string.
 
     Formats various wellness metrics including training metrics, vital signs,

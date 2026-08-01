@@ -54,9 +54,7 @@ _WORKOUT_FULL_EXTRA_FIELDS: list[str] = [
 ]
 
 
-def _workout_doc_to_description(
-    workout_doc: WorkoutDoc, description: str = ""
-) -> str:
+def _workout_doc_to_description(workout_doc: WorkoutDoc, description: str = "") -> str:
     """Render a workout_doc as Intervals.icu workout-builder DSL text.
 
     Intervals.icu only parses, computes (duration, load), and renders the step
@@ -104,15 +102,15 @@ def _strip_folder(folder: dict[str, Any], requesting_athlete_id: str = "") -> di
     if requesting_athlete_id:
         folder_owner = folder.get("athlete_id")
         result["shared"] = (
-            str(folder_owner) != requesting_athlete_id
-            if folder_owner is not None
-            else False
+            str(folder_owner) != requesting_athlete_id if folder_owner is not None else False
         )
     return result
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, title="Get Workout Folders")
+    annotations=ToolAnnotations(
+        readOnlyHint=True, destructiveHint=False, title="Get Workout Folders"
+    )
 )
 async def get_workout_folders(
     athlete_id: str = "",
@@ -152,7 +150,11 @@ async def get_workout_folders(
 
     folders: list[dict[str, Any]]
     if isinstance(result, list):
-        folders = [_strip_folder(f, requesting_athlete_id=athlete_id_to_use) for f in result if isinstance(f, dict)]
+        folders = [
+            _strip_folder(f, requesting_athlete_id=athlete_id_to_use)
+            for f in result
+            if isinstance(f, dict)
+        ]
     elif isinstance(result, dict):
         folders = [_strip_folder(result, requesting_athlete_id=athlete_id_to_use)]
     else:

@@ -162,10 +162,38 @@ SAMPLE_ACTIVITIES = [
 
 
 SAMPLE_WELLNESS = [
-    {"id": "2026-02-16", "hrvRMSSD": 55, "restingHR": 44, "sleepSecs": 27000, "fatigue": 3, "mood": 4},
-    {"id": "2026-02-17", "hrvRMSSD": 57, "restingHR": 46, "sleepSecs": 28800, "fatigue": 4, "mood": 4},
-    {"id": "2026-02-23", "hrvRMSSD": 50, "restingHR": 48, "sleepSecs": 25200, "fatigue": 5, "mood": 3},
-    {"id": "2026-03-16", "hrvRMSSD": 49, "restingHR": 49, "sleepSecs": 24480, "fatigue": 6, "mood": 3},
+    {
+        "id": "2026-02-16",
+        "hrvRMSSD": 55,
+        "restingHR": 44,
+        "sleepSecs": 27000,
+        "fatigue": 3,
+        "mood": 4,
+    },
+    {
+        "id": "2026-02-17",
+        "hrvRMSSD": 57,
+        "restingHR": 46,
+        "sleepSecs": 28800,
+        "fatigue": 4,
+        "mood": 4,
+    },
+    {
+        "id": "2026-02-23",
+        "hrvRMSSD": 50,
+        "restingHR": 48,
+        "sleepSecs": 25200,
+        "fatigue": 5,
+        "mood": 3,
+    },
+    {
+        "id": "2026-03-16",
+        "hrvRMSSD": 49,
+        "restingHR": 49,
+        "sleepSecs": 24480,
+        "fatigue": 6,
+        "mood": 3,
+    },
 ]
 
 
@@ -384,8 +412,9 @@ def test_build_period_totals():
 # ---------------------------------------------------------------------------
 
 
-def _make_fake_request(summary_response, activities_response, wellness_response,
-                       events_response=None):
+def _make_fake_request(
+    summary_response, activities_response, wellness_response, events_response=None
+):
     """Create a fake make_intervals_request that routes based on URL."""
     if events_response is None:
         events_response = []
@@ -400,6 +429,7 @@ def _make_fake_request(summary_response, activities_response, wellness_response,
         if "events" in url:
             return events_response
         return {"error": True, "message": "unexpected URL"}
+
     return fake_request
 
 
@@ -407,8 +437,7 @@ def test_get_training_summary_integration(monkeypatch):
     """Full integration test with mocked API calls."""
     # API returns reverse-chronological
     reversed_weeks = list(reversed(SAMPLE_SUMMARY_WEEKS))
-    fake = _make_fake_request(reversed_weeks, SAMPLE_ACTIVITIES, SAMPLE_WELLNESS,
-                              SAMPLE_EVENTS)
+    fake = _make_fake_request(reversed_weeks, SAMPLE_ACTIVITIES, SAMPLE_WELLNESS, SAMPLE_EVENTS)
 
     monkeypatch.setattr("intervals_mcp_server.api.client.make_intervals_request", fake)
     monkeypatch.setattr("intervals_mcp_server.tools.training_summary.make_intervals_request", fake)
@@ -514,9 +543,7 @@ def test_get_training_summary_default_dates(monkeypatch):
     monkeypatch.setattr("intervals_mcp_server.tools.training_summary.make_intervals_request", fake)
 
     now = datetime.now()
-    result_str = asyncio.run(
-        get_training_summary(athlete_id="i1")
-    )
+    result_str = asyncio.run(get_training_summary(athlete_id="i1"))
     result = json.loads(result_str)
 
     expected_start = (now - timedelta(days=30)).strftime("%Y-%m-%d")
@@ -527,12 +554,11 @@ def test_get_training_summary_default_dates(monkeypatch):
 
 def test_get_training_summary_error_no_athlete(monkeypatch):
     """Should return error when no athlete ID is available."""
-    monkeypatch.setattr("intervals_mcp_server.tools.training_summary.config",
-                        type("C", (), {"athlete_id": ""})())
-
-    result = asyncio.run(
-        get_training_summary(start_date="2026-01-01", end_date="2026-02-01")
+    monkeypatch.setattr(
+        "intervals_mcp_server.tools.training_summary.config", type("C", (), {"athlete_id": ""})()
     )
+
+    result = asyncio.run(get_training_summary(start_date="2026-01-01", end_date="2026-02-01"))
     assert "Error" in result
 
 
@@ -546,11 +572,14 @@ def test_get_training_summary_invalid_date(monkeypatch):
 
 def test_get_training_summary_api_error(monkeypatch):
     """Should return error message when API returns an error."""
+
     async def fake_error(*args, **kwargs):
         return {"error": True, "message": "Unauthorized"}
 
     monkeypatch.setattr("intervals_mcp_server.api.client.make_intervals_request", fake_error)
-    monkeypatch.setattr("intervals_mcp_server.tools.training_summary.make_intervals_request", fake_error)
+    monkeypatch.setattr(
+        "intervals_mcp_server.tools.training_summary.make_intervals_request", fake_error
+    )
 
     result = asyncio.run(
         get_training_summary(start_date="2026-01-01", end_date="2026-02-01", athlete_id="i1")
@@ -689,8 +718,7 @@ def test_future_week_has_no_completed(monkeypatch):
 def test_past_week_has_planned_and_completed(monkeypatch):
     """Past weeks should have both planned and completed sections."""
     reversed_weeks = list(reversed(SAMPLE_SUMMARY_WEEKS))
-    fake = _make_fake_request(reversed_weeks, SAMPLE_ACTIVITIES, SAMPLE_WELLNESS,
-                              SAMPLE_EVENTS)
+    fake = _make_fake_request(reversed_weeks, SAMPLE_ACTIVITIES, SAMPLE_WELLNESS, SAMPLE_EVENTS)
 
     monkeypatch.setattr("intervals_mcp_server.api.client.make_intervals_request", fake)
     monkeypatch.setattr("intervals_mcp_server.tools.training_summary.make_intervals_request", fake)
@@ -747,8 +775,16 @@ def test_get_training_summary_zero_tss_sport(monkeypatch):
         "distance": 0,
         "total_elevation_gain": 0,
         "byCategory": [
-            {"category": "Workout", "count": 1, "training_load": 0, "time": 3000,
-             "distance": 0, "total_elevation_gain": 0, "eftp": None, "eftpPerKg": None},
+            {
+                "category": "Workout",
+                "count": 1,
+                "training_load": 0,
+                "time": 3000,
+                "distance": 0,
+                "total_elevation_gain": 0,
+                "eftp": None,
+                "eftpPerKg": None,
+            },
         ],
     }
     fake = _make_fake_request([week_with_zero_tss], [], [])
@@ -785,7 +821,9 @@ def test_get_training_summary_concurrent_calls(monkeypatch):
         return {"error": True, "message": "unexpected"}
 
     monkeypatch.setattr("intervals_mcp_server.api.client.make_intervals_request", tracking_request)
-    monkeypatch.setattr("intervals_mcp_server.tools.training_summary.make_intervals_request", tracking_request)
+    monkeypatch.setattr(
+        "intervals_mcp_server.tools.training_summary.make_intervals_request", tracking_request
+    )
 
     asyncio.run(
         get_training_summary(start_date="2026-01-01", end_date="2026-02-01", athlete_id="i1")
@@ -883,20 +921,32 @@ def test_week_with_holiday_dates(monkeypatch):
     """A week containing HOLIDAY events should list their dates."""
     week_data = {
         "date": "2026-02-16",
-        "count": 2, "fitness": 50.0, "fatigue": 50.0, "form": 0.0,
-        "rampRate": None, "training_load": 100, "srpe": 200,
-        "time": 7200, "distance": 30000, "total_elevation_gain": 0,
+        "count": 2,
+        "fitness": 50.0,
+        "fatigue": 50.0,
+        "form": 0.0,
+        "rampRate": None,
+        "training_load": 100,
+        "srpe": 200,
+        "time": 7200,
+        "distance": 30000,
+        "total_elevation_gain": 0,
         "byCategory": [],
     }
     events_with_holiday = [
         {
-            "id": "e1", "start_date_local": "2026-02-17T00:00:00",
-            "type": "Ride", "category": "WORKOUT",
-            "icu_training_load": 100, "moving_time": 3600,
+            "id": "e1",
+            "start_date_local": "2026-02-17T00:00:00",
+            "type": "Ride",
+            "category": "WORKOUT",
+            "icu_training_load": 100,
+            "moving_time": 3600,
         },
         {
-            "id": "e_hol", "start_date_local": "2026-02-18T00:00:00",
-            "category": "HOLIDAY", "name": "Bank Holiday",
+            "id": "e_hol",
+            "start_date_local": "2026-02-18T00:00:00",
+            "category": "HOLIDAY",
+            "name": "Bank Holiday",
         },
     ]
     fake = _make_fake_request([week_data], [], [], events_with_holiday)
@@ -918,20 +968,32 @@ def test_week_with_note(monkeypatch):
     """A week containing a NOTE event should have the note text attached."""
     week_data = {
         "date": "2026-02-16",
-        "count": 1, "fitness": 50.0, "fatigue": 50.0, "form": 0.0,
-        "rampRate": None, "training_load": 80, "srpe": 150,
-        "time": 3600, "distance": 20000, "total_elevation_gain": 0,
+        "count": 1,
+        "fitness": 50.0,
+        "fatigue": 50.0,
+        "form": 0.0,
+        "rampRate": None,
+        "training_load": 80,
+        "srpe": 150,
+        "time": 3600,
+        "distance": 20000,
+        "total_elevation_gain": 0,
         "byCategory": [],
     }
     events_with_note = [
         {
-            "id": "e1", "start_date_local": "2026-02-17T00:00:00",
-            "type": "Ride", "category": "WORKOUT",
-            "icu_training_load": 80, "moving_time": 3600,
+            "id": "e1",
+            "start_date_local": "2026-02-17T00:00:00",
+            "type": "Ride",
+            "category": "WORKOUT",
+            "icu_training_load": 80,
+            "moving_time": 3600,
         },
         {
-            "id": "e_note", "start_date_local": "2026-02-19T00:00:00",
-            "category": "NOTE", "name": "Start of build phase",
+            "id": "e_note",
+            "start_date_local": "2026-02-19T00:00:00",
+            "category": "NOTE",
+            "name": "Start of build phase",
         },
     ]
     fake = _make_fake_request([week_data], [], [], events_with_note)
@@ -954,19 +1016,30 @@ def test_week_with_multiple_notes(monkeypatch):
     """Multiple NOTE events in one week should all appear in the notes list."""
     week_data = {
         "date": "2026-02-16",
-        "count": 0, "fitness": 50.0, "fatigue": 50.0, "form": 0.0,
-        "rampRate": None, "training_load": 0, "srpe": 0,
-        "time": 0, "distance": 0, "total_elevation_gain": 0,
+        "count": 0,
+        "fitness": 50.0,
+        "fatigue": 50.0,
+        "form": 0.0,
+        "rampRate": None,
+        "training_load": 0,
+        "srpe": 0,
+        "time": 0,
+        "distance": 0,
+        "total_elevation_gain": 0,
         "byCategory": [],
     }
     events_with_notes = [
         {
-            "id": "n1", "start_date_local": "2026-02-16T00:00:00",
-            "category": "NOTE", "name": "Recovery week",
+            "id": "n1",
+            "start_date_local": "2026-02-16T00:00:00",
+            "category": "NOTE",
+            "name": "Recovery week",
         },
         {
-            "id": "n2", "start_date_local": "2026-02-18T00:00:00",
-            "category": "NOTE", "name": "Focus on mobility",
+            "id": "n2",
+            "start_date_local": "2026-02-18T00:00:00",
+            "category": "NOTE",
+            "name": "Focus on mobility",
         },
     ]
     fake = _make_fake_request([week_data], [], [], events_with_notes)
@@ -990,27 +1063,76 @@ def test_holiday_spanning_two_weeks(monkeypatch):
     """A holiday spanning two weeks should add dates to each week independently."""
     week1 = {
         "date": "2026-02-16",
-        "count": 0, "fitness": 50.0, "fatigue": 50.0, "form": 0.0,
-        "rampRate": None, "training_load": 0, "srpe": 0,
-        "time": 0, "distance": 0, "total_elevation_gain": 0,
+        "count": 0,
+        "fitness": 50.0,
+        "fatigue": 50.0,
+        "form": 0.0,
+        "rampRate": None,
+        "training_load": 0,
+        "srpe": 0,
+        "time": 0,
+        "distance": 0,
+        "total_elevation_gain": 0,
         "byCategory": [],
     }
     week2 = {
         "date": "2026-02-23",
-        "count": 0, "fitness": 48.0, "fatigue": 40.0, "form": 8.0,
-        "rampRate": None, "training_load": 0, "srpe": 0,
-        "time": 0, "distance": 0, "total_elevation_gain": 0,
+        "count": 0,
+        "fitness": 48.0,
+        "fatigue": 40.0,
+        "form": 8.0,
+        "rampRate": None,
+        "training_load": 0,
+        "srpe": 0,
+        "time": 0,
+        "distance": 0,
+        "total_elevation_gain": 0,
         "byCategory": [],
     }
     # Holiday events spanning Thu-Wed across two weeks
     holiday_events = [
-        {"id": "h1", "start_date_local": "2026-02-19T00:00:00", "category": "HOLIDAY", "name": "Vacation"},
-        {"id": "h2", "start_date_local": "2026-02-20T00:00:00", "category": "HOLIDAY", "name": "Vacation"},
-        {"id": "h3", "start_date_local": "2026-02-21T00:00:00", "category": "HOLIDAY", "name": "Vacation"},
-        {"id": "h4", "start_date_local": "2026-02-22T00:00:00", "category": "HOLIDAY", "name": "Vacation"},
-        {"id": "h5", "start_date_local": "2026-02-23T00:00:00", "category": "HOLIDAY", "name": "Vacation"},
-        {"id": "h6", "start_date_local": "2026-02-24T00:00:00", "category": "HOLIDAY", "name": "Vacation"},
-        {"id": "h7", "start_date_local": "2026-02-25T00:00:00", "category": "HOLIDAY", "name": "Vacation"},
+        {
+            "id": "h1",
+            "start_date_local": "2026-02-19T00:00:00",
+            "category": "HOLIDAY",
+            "name": "Vacation",
+        },
+        {
+            "id": "h2",
+            "start_date_local": "2026-02-20T00:00:00",
+            "category": "HOLIDAY",
+            "name": "Vacation",
+        },
+        {
+            "id": "h3",
+            "start_date_local": "2026-02-21T00:00:00",
+            "category": "HOLIDAY",
+            "name": "Vacation",
+        },
+        {
+            "id": "h4",
+            "start_date_local": "2026-02-22T00:00:00",
+            "category": "HOLIDAY",
+            "name": "Vacation",
+        },
+        {
+            "id": "h5",
+            "start_date_local": "2026-02-23T00:00:00",
+            "category": "HOLIDAY",
+            "name": "Vacation",
+        },
+        {
+            "id": "h6",
+            "start_date_local": "2026-02-24T00:00:00",
+            "category": "HOLIDAY",
+            "name": "Vacation",
+        },
+        {
+            "id": "h7",
+            "start_date_local": "2026-02-25T00:00:00",
+            "category": "HOLIDAY",
+            "name": "Vacation",
+        },
     ]
     # API returns reverse-chronological
     fake = _make_fake_request([week2, week1], [], [], holiday_events)

@@ -130,6 +130,7 @@ def _patch_workout_lib(monkeypatch, fake_request):
 
 def test_get_workout_folders_success(monkeypatch):
     """Folders are returned with children stripped and shared flag."""
+
     async def fake_request(*_a, **_kw):
         return [SAMPLE_FOLDER, SAMPLE_SHARED_FOLDER]
 
@@ -148,6 +149,7 @@ def test_get_workout_folders_success(monkeypatch):
 
 def test_get_workout_folders_empty(monkeypatch):
     """Empty list returns a human-readable message."""
+
     async def fake_request(*_a, **_kw):
         return []
 
@@ -158,6 +160,7 @@ def test_get_workout_folders_empty(monkeypatch):
 
 def test_get_workout_folders_error(monkeypatch):
     """API error returns an error message."""
+
     async def fake_request(*_a, **_kw):
         return {"error": True, "message": "Unauthorized"}
 
@@ -173,6 +176,7 @@ def test_get_workout_folders_error(monkeypatch):
 
 def test_list_workouts_compact(monkeypatch):
     """Compact mode returns only compact fields; workout_doc is never present."""
+
     async def fake_request(*_a, **_kw):
         return [SAMPLE_WORKOUT_A, SAMPLE_WORKOUT_B]
 
@@ -189,6 +193,7 @@ def test_list_workouts_compact(monkeypatch):
 
 def test_list_workouts_full(monkeypatch):
     """Full mode includes extra fields but still omits workout_doc."""
+
     async def fake_request(*_a, **_kw):
         return [SAMPLE_WORKOUT_A]
 
@@ -201,6 +206,7 @@ def test_list_workouts_full(monkeypatch):
 
 def test_list_workouts_folder_filter(monkeypatch):
     """folder_id filters own workouts client-side."""
+
     async def fake_request(*_a, **kw):
         if "/workouts" in kw.get("url", ""):
             return [SAMPLE_WORKOUT_A, SAMPLE_WORKOUT_B]
@@ -215,6 +221,7 @@ def test_list_workouts_folder_filter(monkeypatch):
 
 def test_list_workouts_folder_filter_no_match(monkeypatch):
     """folder_id that matches nothing in either endpoint returns human message."""
+
     async def fake_request(*_a, **kw):
         url = kw.get("url", "")
         if "/workouts" in url:
@@ -231,6 +238,7 @@ def test_list_workouts_folder_filter_no_match(monkeypatch):
 
 def test_list_workouts_shared_folder_fallback(monkeypatch):
     """Shared folder workouts are returned with shared indicator."""
+
     async def fake_request(*_a, **kw):
         url = kw.get("url", "")
         if "/workouts" in url:
@@ -251,6 +259,7 @@ def test_list_workouts_shared_folder_fallback(monkeypatch):
 
 def test_list_workouts_error(monkeypatch):
     """API error is surfaced."""
+
     async def fake_request(*_a, **_kw):
         return {"error": True, "message": "Forbidden"}
 
@@ -283,6 +292,7 @@ def test_list_workouts_type_filter(monkeypatch):
 
 def test_list_workouts_type_filter_no_match(monkeypatch):
     """workout_type that matches nothing returns helpful message."""
+
     async def fake_request(*_a, **_kw):
         return [SAMPLE_WORKOUT_A, SAMPLE_WORKOUT_B]
 
@@ -299,6 +309,7 @@ def test_list_workouts_type_filter_no_match(monkeypatch):
 
 def test_get_workout_success(monkeypatch):
     """Full workout detail is returned including workout_doc."""
+
     async def fake_request(*_a, **_kw):
         return SAMPLE_WORKOUT_A
 
@@ -311,6 +322,7 @@ def test_get_workout_success(monkeypatch):
 
 def test_get_workout_not_found(monkeypatch):
     """Non-existent workout returns helpful message."""
+
     async def fake_request(*_a, **_kw):
         return {}
 
@@ -321,6 +333,7 @@ def test_get_workout_not_found(monkeypatch):
 
 def test_get_workout_error(monkeypatch):
     """API error returns error message."""
+
     async def fake_request(*_a, **_kw):
         return {"error": True, "message": "Not Found"}
 
@@ -380,7 +393,9 @@ def test_create_workout_sends_workout_doc_as_dsl_description(monkeypatch):
     _patch_workout_lib(monkeypatch, fake_request)
     doc = WorkoutDoc(
         description="VO2",
-        steps=[Step(duration=900, power=Value(value=80, units=ValueUnits.PERCENT_FTP), warmup=True)],
+        steps=[
+            Step(duration=900, power=Value(value=80, units=ValueUnits.PERCENT_FTP), warmup=True)
+        ],
     )
     result = asyncio.run(
         _get_tool("create_workout")(
@@ -422,6 +437,7 @@ def test_update_workout_sends_workout_doc_as_dsl_description(monkeypatch):
 
 def test_create_workout_error(monkeypatch):
     """API error returns error message."""
+
     async def fake_request(*_a, **_kw):
         return {"error": True, "message": "Bad Request"}
 
@@ -491,6 +507,7 @@ def test_update_workout_partial(monkeypatch):
 
 def test_update_workout_error(monkeypatch):
     """API error returns error message."""
+
     async def fake_request(*_a, **_kw):
         return {"error": True, "message": "Server Error"}
 
@@ -548,6 +565,7 @@ def test_schedule_workout_invalid_date(monkeypatch):
 
 def test_schedule_workout_not_found(monkeypatch):
     """Non-existent workout returns error."""
+
     async def fake_request(*_a, **_kw):
         return {}
 
@@ -560,6 +578,7 @@ def test_schedule_workout_not_found(monkeypatch):
 
 def test_schedule_workout_fetch_error(monkeypatch):
     """API error when fetching workout is surfaced."""
+
     async def fake_request(*_a, **_kw):
         return {"error": True, "message": "Not Found"}
 
@@ -572,6 +591,7 @@ def test_schedule_workout_fetch_error(monkeypatch):
 
 def test_schedule_workout_event_creation_error(monkeypatch):
     """API error when creating calendar event is surfaced."""
+
     async def fake_request(*_a, **kwargs):
         url = kwargs.get("url", "")
         if "/workouts/" in url:
