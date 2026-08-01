@@ -158,11 +158,11 @@ Every call to the Intervals.icu API goes through `api/client.py:make_intervals_r
 
 ```python
 result = await make_intervals_request(
-  url=f"/athlete/{athlete_id}/activities",
-  api_key=api_key,        # falls back to config.api_key if empty
-  params={"oldest": start_date, "newest": end_date},
-  method="GET",           # or "POST" / "PUT"
-  data={"key": "value"},  # body for POST/PUT
+    url=f"/athlete/{athlete_id}/activities",
+    api_key=api_key,  # falls back to config.api_key if empty
+    params={"oldest": start_date, "newest": end_date},
+    method="GET",  # or "POST" / "PUT"
+    data={"key": "value"},  # body for POST/PUT
 )
 ```
 
@@ -170,7 +170,7 @@ Error responses always return `{"error": True, "message": "..."}`. Always check 
 
 ```python
 if isinstance(result, dict) and "error" in result:
-  return f"Error: {result.get('message', 'Unknown error')}"
+    return f"Error: {result.get('message', 'Unknown error')}"
 ```
 
 ### Configuration Singleton
@@ -179,6 +179,7 @@ Config is loaded once and cached in `config.py`:
 
 ```python
 from intervals_mcp_server.config import get_config
+
 config = get_config()
 ```
 
@@ -211,8 +212,11 @@ All three support `to_dict()` / `from_dict()` / `to_json()` / `from_json()` roun
 - Mock HTTP by monkeypatching `make_intervals_request` or the `httpx_client`:
 ```python
 import asyncio
-monkeypatch.setattr("intervals_mcp_server.server.make_intervals_request",
-                    lambda *a, **kw: asyncio.coroutine(lambda: mock_data)())
+
+monkeypatch.setattr(
+    "intervals_mcp_server.server.make_intervals_request",
+    lambda *a, **kw: asyncio.coroutine(lambda: mock_data)(),
+)
 ```
 - Set `API_KEY` and `ATHLETE_ID` env vars at the top of each test file before importing server modules:
 ```python
