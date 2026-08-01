@@ -31,7 +31,7 @@ def _get_tool(name: str):
     """
     mod = sys.modules.get("intervals_mcp_server.tools.workout_library")
     if mod is None:
-        import intervals_mcp_server.tools.workout_library as mod  # noqa: PLW0621
+        import intervals_mcp_server.tools.workout_library as mod
     return getattr(mod, name)
 
 
@@ -119,7 +119,7 @@ def _patch_workout_lib(monkeypatch, fake_request):
     """Patch make_intervals_request in the current workout_library module (handles reloads)."""
     mod = sys.modules.get("intervals_mcp_server.tools.workout_library")
     if mod is None:
-        import intervals_mcp_server.tools.workout_library as mod  # noqa: PLW0621
+        import intervals_mcp_server.tools.workout_library as mod
     monkeypatch.setattr(mod, "make_intervals_request", fake_request)
 
 
@@ -452,7 +452,7 @@ def test_create_workout_no_athlete(monkeypatch):
     """Missing athlete ID returns helpful error."""
     mod = sys.modules.get("intervals_mcp_server.tools.workout_library")
     if mod is None:
-        import intervals_mcp_server.tools.workout_library as mod  # noqa: PLW0621
+        import intervals_mcp_server.tools.workout_library as mod
     monkeypatch.setattr(mod, "config", type("C", (), {"athlete_id": ""})())
     result = asyncio.run(
         _get_tool("create_workout")(name="X", workout_type="Run", folder_id=1, athlete_id="")
