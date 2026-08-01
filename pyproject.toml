@@ -10,7 +10,11 @@ readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.12"
 license = { text = "GPL-3.0-only" }
 authors = [{ name = "Marc Vilanova", email = "barker-riddle.8z@icloud.com" }]
-dependencies = ["mcp[cli]>=1.4.0", "httpx>=0.25.0", "python-dotenv>=1.0.0"]
+# mcp capped below 2.0: the 2026-07-28 spec (shipped in mcp 2.0) changes the
+# OAuth/auth surface used by auth.py plus error codes and deprecations. Prod
+# resolves this unbounded, so the cap keeps it on the tested 1.x line until the
+# OAuth flow is verified against 2.x. Bump deliberately after testing.
+dependencies = ["mcp[cli]>=1.22,<2.0", "httpx>=0.25.0", "python-dotenv>=1.0.0"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
