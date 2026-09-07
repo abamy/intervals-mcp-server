@@ -260,11 +260,3 @@ mcp run src/intervals_mcp_server/server.py
 ## License
 
 The GNU General Public License v3.0
-
-## Featured
-
-### Glama.ai
-
-<a href="https://glama.ai/mcp/servers/@mvilanova/intervals-mcp-server">
-  <img width="380" height="200" src="https://glama.ai/mcp/servers/@mvilanova/intervals-mcp-server/badge" alt="Intervals.icu Server MCP server" />
-</a>

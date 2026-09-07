@@ -17,7 +17,12 @@ authors = [{ name = "Marc Vilanova", email = "barker-riddle.8z@icloud.com" }]
 # mcp 2.0 implements the 2026-07-28 spec (auth-hardening SEPs, error code
 # changes, Roots/Sampling/Logging deprecations) — the OAuth flow has been
 # tested end-to-end against this line; bump the cap deliberately after retesting.
-dependencies = ["fastmcp>=4.0,<5.0", "mcp>=2.0,<3.0", "httpx>=0.25.0", "python-dotenv>=1.0.0"]
+dependencies = [
+    "fastmcp>=4.0,<5.0",
+    "mcp>=2.0,<3.0",
+    "httpx>=0.25.0",
+    "python-dotenv>=1.0.0",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
