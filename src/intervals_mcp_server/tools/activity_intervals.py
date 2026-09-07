@@ -15,7 +15,7 @@ from intervals_mcp_server.mcp_instance import mcp  # noqa: F401
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Update Activity Intervals", readOnlyHint=False, destructiveHint=True
+        title="Update Activity Intervals", read_only_hint=False, destructive_hint=True
     )
 )
 async def update_activity_intervals(
@@ -53,7 +53,7 @@ async def update_activity_intervals(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Update Activity Interval", readOnlyHint=False, destructiveHint=False
+        title="Update Activity Interval", read_only_hint=False, destructive_hint=False
     )
 )
 async def update_activity_interval(
@@ -88,7 +88,7 @@ async def update_activity_interval(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Delete Activity Intervals", readOnlyHint=False, destructiveHint=True
+        title="Delete Activity Intervals", read_only_hint=False, destructive_hint=True
     )
 )
 async def delete_activity_intervals(
@@ -121,7 +121,7 @@ async def delete_activity_intervals(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Split Activity Interval", readOnlyHint=False, destructiveHint=False
+        title="Split Activity Interval", read_only_hint=False, destructive_hint=False
     )
 )
 async def split_activity_interval(

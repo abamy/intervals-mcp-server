@@ -20,7 +20,9 @@ config = get_config()
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Get Training Plan", readOnlyHint=True, destructiveHint=False)
+    annotations=ToolAnnotations(
+        title="Get Training Plan", read_only_hint=True, destructive_hint=False
+    )
 )
 async def get_training_plan(
     athlete_id: str = "",
@@ -47,7 +49,7 @@ async def get_training_plan(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Change Training Plan", readOnlyHint=False, destructiveHint=False
+        title="Change Training Plan", read_only_hint=False, destructive_hint=False
     )
 )
 async def change_training_plan(
@@ -93,7 +95,7 @@ async def change_training_plan(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Apply Plan Changes", readOnlyHint=False, destructiveHint=False
+        title="Apply Plan Changes", read_only_hint=False, destructive_hint=False
     )
 )
 async def apply_plan_changes(
@@ -119,7 +121,7 @@ async def apply_plan_changes(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Apply Plan to Calendar", readOnlyHint=False, destructiveHint=False
+        title="Apply Plan to Calendar", read_only_hint=False, destructive_hint=False
     )
 )
 async def apply_plan_to_calendar(
@@ -165,7 +167,7 @@ async def apply_plan_to_calendar(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Change Athlete Plans (Bulk)", readOnlyHint=False, destructiveHint=False
+        title="Change Athlete Plans (Bulk)", read_only_hint=False, destructive_hint=False
     )
 )
 async def change_athlete_plans_bulk(

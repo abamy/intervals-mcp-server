@@ -1,0 +1,13 @@
+{
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "source": {
+    "path": "src/intervals_mcp_server/server.py",
+    "entrypoint": "mcp"
+  },
+  "environment": {
+    "project": "."
+  },
+  "deployment": {
+    "transport": "http"
+  }
+}

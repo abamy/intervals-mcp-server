@@ -124,7 +124,7 @@ def _extract_curve_data(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Athlete Power Curves", readOnlyHint=True, destructiveHint=False
+        title="Get Athlete Power Curves", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_athlete_power_curves(

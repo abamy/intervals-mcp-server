@@ -14,30 +14,21 @@ Configure via:
 
 import secrets
 import time
-from dataclasses import dataclass, field
 from typing import Any
 
-from pydantic import AnyUrl
+from pydantic import AnyHttpUrl, AnyUrl
 
+from fastmcp.server.auth import AccessToken, OAuthProvider
 from mcp.server.auth.provider import (
-    AccessToken,
+    AuthorizationCode,
     AuthorizationParams,
+    RefreshToken,
     construct_redirect_uri,
 )
 from mcp.shared.auth import InvalidRedirectUriError, OAuthClientInformationFull, OAuthToken
 
-
-@dataclass
-class _AuthCode:
-    """In-memory authorization code, valid for 5 minutes."""
-
-    code: str
-    client_id: str
-    redirect_uri: str
-    redirect_uri_provided_explicitly: bool
-    code_challenge: str
-    scopes: list[str] = field(default_factory=list)
-    expires_at: float = field(default_factory=lambda: time.time() + 300)
+# Authorization codes are valid for 5 minutes.
+_AUTH_CODE_TTL_SECONDS = 300
 
 
 class _FlexibleClient(OAuthClientInformationFull):
@@ -64,7 +55,7 @@ class _FlexibleClient(OAuthClientInformationFull):
         return [s for s in requested_scope.split(" ") if s]
 
 
-class SingleClientOAuthProvider:
+class SingleClientOAuthProvider(OAuthProvider):
     """Minimal OAuth 2.0 authorization server for single-client personal deployments.
 
     Implements the authorization code + PKCE flow. Auto-approves the
@@ -72,10 +63,13 @@ class SingleClientOAuthProvider:
     the access token so no server-side state is needed across restarts.
     """
 
-    def __init__(self, client_id: str, client_secret: str) -> None:
+    def __init__(self, client_id: str, client_secret: str, base_url: AnyHttpUrl | str) -> None:
+        # This server is both the authorization server and the resource
+        # server, so issuer_url/resource_base_url both point at base_url.
+        super().__init__(base_url=base_url, issuer_url=base_url, resource_base_url=base_url)
         self._client_id = client_id
         self._client_secret = client_secret
-        self._codes: dict[str, _AuthCode] = {}
+        self._codes: dict[str, AuthorizationCode] = {}
 
     async def get_client(self, client_id: str) -> _FlexibleClient | None:
         if client_id != self._client_id:
@@ -100,19 +94,20 @@ class SingleClientOAuthProvider:
         self, client: OAuthClientInformationFull, params: AuthorizationParams
     ) -> str:
         code = secrets.token_urlsafe(32)
-        self._codes[code] = _AuthCode(
+        self._codes[code] = AuthorizationCode(
             code=code,
             client_id=client.client_id or self._client_id,
-            redirect_uri=str(params.redirect_uri),
+            redirect_uri=params.redirect_uri,
             redirect_uri_provided_explicitly=params.redirect_uri_provided_explicitly,
             code_challenge=params.code_challenge,
             scopes=list(params.scopes or []),
+            expires_at=time.time() + _AUTH_CODE_TTL_SECONDS,
         )
         return construct_redirect_uri(str(params.redirect_uri), code=code, state=params.state)
 
     async def load_authorization_code(
         self, client: OAuthClientInformationFull, authorization_code: str
-    ) -> _AuthCode | None:
+    ) -> AuthorizationCode | None:
         code = self._codes.get(authorization_code)
         if code is None:
             return None
@@ -122,7 +117,7 @@ class SingleClientOAuthProvider:
         return code
 
     async def exchange_authorization_code(
-        self, client: OAuthClientInformationFull, authorization_code: _AuthCode
+        self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode
     ) -> OAuthToken:
         self._codes.pop(authorization_code.code, None)
         return OAuthToken(access_token=self._client_secret, token_type="Bearer")
@@ -138,9 +133,9 @@ class SingleClientOAuthProvider:
         return None
 
     async def exchange_refresh_token(
-        self, client: OAuthClientInformationFull, refresh_token: None, scopes: list[str]
+        self, client: OAuthClientInformationFull, refresh_token: RefreshToken, scopes: list[str]
     ) -> OAuthToken:
         raise NotImplementedError("Refresh tokens are not supported")
 
-    async def revoke_token(self, token: str, token_type_hint: str | None = None) -> None:
+    async def revoke_token(self, token: AccessToken | RefreshToken) -> None:
         pass

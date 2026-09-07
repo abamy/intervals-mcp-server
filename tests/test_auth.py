@@ -60,7 +60,9 @@ class TestSingleClientOAuthProvider:
     async def test_get_client_returns_none_for_unknown_id(self):
         from intervals_mcp_server.auth import SingleClientOAuthProvider  # pylint: disable=import-outside-toplevel
 
-        provider = SingleClientOAuthProvider("myclient", "mysecret")
+        provider = SingleClientOAuthProvider(
+            "myclient", "mysecret", base_url="https://test.example.com"
+        )
         result = await provider.get_client("unknown")
         assert result is None
 
@@ -68,7 +70,9 @@ class TestSingleClientOAuthProvider:
     async def test_get_client_returns_client_for_registered_id(self):
         from intervals_mcp_server.auth import SingleClientOAuthProvider  # pylint: disable=import-outside-toplevel
 
-        provider = SingleClientOAuthProvider("myclient", "mysecret")
+        provider = SingleClientOAuthProvider(
+            "myclient", "mysecret", base_url="https://test.example.com"
+        )
         client = await provider.get_client("myclient")
         assert client is not None
         assert client.client_id == "myclient"
@@ -82,7 +86,9 @@ class TestSingleClientOAuthProvider:
         from intervals_mcp_server.auth import SingleClientOAuthProvider  # pylint: disable=import-outside-toplevel
         from pydantic import AnyUrl  # pylint: disable=import-outside-toplevel
 
-        provider = SingleClientOAuthProvider("myclient", "mysecret")
+        provider = SingleClientOAuthProvider(
+            "myclient", "mysecret", base_url="https://test.example.com"
+        )
         client = await provider.get_client("myclient")
         assert client is not None
         redirect = AnyUrl("https://claude.ai/oauth/callback")
@@ -92,7 +98,9 @@ class TestSingleClientOAuthProvider:
     async def test_client_accepts_any_scope(self):
         from intervals_mcp_server.auth import SingleClientOAuthProvider  # pylint: disable=import-outside-toplevel
 
-        provider = SingleClientOAuthProvider("myclient", "mysecret")
+        provider = SingleClientOAuthProvider(
+            "myclient", "mysecret", base_url="https://test.example.com"
+        )
         client = await provider.get_client("myclient")
         assert client is not None
         # None scope passes through unchanged
@@ -106,7 +114,9 @@ class TestSingleClientOAuthProvider:
     async def test_load_access_token_accepts_correct_secret(self):
         from intervals_mcp_server.auth import SingleClientOAuthProvider  # pylint: disable=import-outside-toplevel
 
-        provider = SingleClientOAuthProvider("myclient", "mysecret")
+        provider = SingleClientOAuthProvider(
+            "myclient", "mysecret", base_url="https://test.example.com"
+        )
         result = await provider.load_access_token("mysecret")
         assert result is not None
         assert result.client_id == "myclient"
@@ -115,7 +125,9 @@ class TestSingleClientOAuthProvider:
     async def test_load_access_token_rejects_wrong_token(self):
         from intervals_mcp_server.auth import SingleClientOAuthProvider  # pylint: disable=import-outside-toplevel
 
-        provider = SingleClientOAuthProvider("myclient", "mysecret")
+        provider = SingleClientOAuthProvider(
+            "myclient", "mysecret", base_url="https://test.example.com"
+        )
         result = await provider.load_access_token("wrong")
         assert result is None
 
@@ -125,7 +137,9 @@ class TestSingleClientOAuthProvider:
         from pydantic import AnyUrl  # pylint: disable=import-outside-toplevel
         from mcp.server.auth.provider import AuthorizationParams  # pylint: disable=import-outside-toplevel
 
-        provider = SingleClientOAuthProvider("myclient", "mysecret")
+        provider = SingleClientOAuthProvider(
+            "myclient", "mysecret", base_url="https://test.example.com"
+        )
         client = await provider.get_client("myclient")
         assert client is not None
 
@@ -156,15 +170,19 @@ class TestSingleClientOAuthProvider:
 
     @pytest.mark.asyncio
     async def test_expired_authorization_code_rejected(self):
-        from intervals_mcp_server.auth import SingleClientOAuthProvider, _AuthCode  # pylint: disable=import-outside-toplevel
+        from intervals_mcp_server.auth import SingleClientOAuthProvider  # pylint: disable=import-outside-toplevel
+        from mcp.server.auth.provider import AuthorizationCode  # pylint: disable=import-outside-toplevel
 
-        provider = SingleClientOAuthProvider("myclient", "mysecret")
-        expired_code = _AuthCode(
+        provider = SingleClientOAuthProvider(
+            "myclient", "mysecret", base_url="https://test.example.com"
+        )
+        expired_code = AuthorizationCode(
             code="expiredcode",
             client_id="myclient",
-            redirect_uri="https://claude.ai/oauth/callback",
+            redirect_uri="https://claude.ai/oauth/callback",  # type: ignore[arg-type]
             redirect_uri_provided_explicitly=True,
             code_challenge="abc",
+            scopes=[],
             expires_at=time.time() - 1,  # already expired
         )
         provider._codes["expiredcode"] = expired_code  # pylint: disable=protected-access
@@ -178,12 +196,10 @@ class TestMcpInstanceAuth:
     def test_no_auth_when_credentials_unset(self, monkeypatch):
         inst = _fresh_mcp(monkeypatch)
         assert inst._auth_server_provider is None
-        assert inst._auth_settings is None
 
     def test_auth_enabled_when_credentials_set(self, monkeypatch):
         inst = _fresh_mcp(monkeypatch, client_id="cid", client_secret="csecret")
         assert inst._auth_server_provider is not None
-        assert inst._auth_settings is not None
 
     def test_auth_disabled_when_only_client_id_set(self, monkeypatch):
         inst = _fresh_mcp(monkeypatch, client_id="cid", client_secret=None)

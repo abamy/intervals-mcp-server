@@ -21,7 +21,9 @@ config = get_config()
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Get Custom Items", readOnlyHint=True, destructiveHint=False)
+    annotations=ToolAnnotations(
+        title="Get Custom Items", read_only_hint=True, destructive_hint=False
+    )
 )
 async def get_custom_items(
     athlete_id: str = "",
@@ -61,7 +63,7 @@ async def get_custom_items(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Custom Item by ID", readOnlyHint=True, destructiveHint=False
+        title="Get Custom Item by ID", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_custom_item_by_id(
@@ -95,7 +97,7 @@ async def get_custom_item_by_id(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Create Custom Item", readOnlyHint=False, destructiveHint=False
+        title="Create Custom Item", read_only_hint=False, destructive_hint=False
     )
 )
 async def create_custom_item(
@@ -155,7 +157,7 @@ async def create_custom_item(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Update Custom Item", readOnlyHint=False, destructiveHint=False
+        title="Update Custom Item", read_only_hint=False, destructive_hint=False
     )
 )
 async def update_custom_item(
@@ -221,7 +223,7 @@ async def update_custom_item(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Delete Custom Item", readOnlyHint=False, destructiveHint=True
+        title="Delete Custom Item", read_only_hint=False, destructive_hint=True
     )
 )
 async def delete_custom_item(
