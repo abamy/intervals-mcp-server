@@ -20,8 +20,12 @@ The fastest way to get started is to deploy the server to [FastMCP Cloud](https:
 This repo already includes a [`fastmcp.json`](fastmcp.json) at the root pointing Horizon at the server entrypoint (`src/intervals_mcp_server/server.py:mcp`) and telling it to install dependencies from this project's `pyproject.toml`/`uv.lock`.
 
 1. Sign in at [horizon.prefect.io](https://horizon.prefect.io) (or run `fastmcp login` locally) and connect your GitHub account.
-2. Point Horizon at your `intervals-mcp-server` fork/repo and the branch to deploy (`develop`). It detects `fastmcp.json` and builds/deploys automatically; it also redeploys on every push.
-3. The dashboard's exact steps may differ from this description — check the [FastMCP Cloud docs](https://gofastmcp.com/deployment/fastmcp-cloud) for the current UI.
+2. Create a new server pointing at your `intervals-mcp-server` fork/repo and the branch to deploy (`develop`). It redeploys automatically on every push.
+3. In the deploy form:
+   - **Server name**: whatever you like — this becomes part of your URL (`https://<server-name>.fastmcp.app/mcp`)
+   - **Entrypoint**: `src/intervals_mcp_server/server.py` (auto-detects the `mcp` variable defined there; `server.py` is what imports all the `tools/*.py` modules that register tools via `@mcp.tool()`, so point here, not at `mcp_instance.py`)
+   - **Requirements**: leave blank — the `uv`-based builder auto-detects `pyproject.toml`/`uv.lock` at the repo root
+   - **Environment Variables**: see step 2 below
 
 ### 2. Set Environment Variables
 
@@ -44,9 +48,11 @@ Do **not** set `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`/`MCP_SERVER_URL` on FastMCP C
 
 Confirmed by hands-on testing: FastMCP Cloud puts its own OAuth gateway (**Server → Access → Authentication → "Horizon Authentication"**) in front of every deployment, and on the free tier it **cannot be disabled** (turning it off requires a paid plan). This gateway fully replaces this app's own `SingleClientOAuthProvider` — it serves its own `/oauth2/authorize`, `/oauth2/token`, `/oauth2/register` endpoints instead of the app's `/authorize`/`/token`, so `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET` (which only exist inside this app's code) are never reached and are pointless to set here.
 
-When connecting Claude.ai to a FastMCP Cloud URL, pick **"Register automatically" / DCR** (not "use your own OAuth client") in the connector's Client OAuth setting. Claude will then register itself with Horizon's gateway and prompt you to log in with your own Horizon/Prefect account — which is exactly the personal-use access gate this section originally intended, just enforced by Horizon instead of the app. `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`/`MCP_SERVER_URL` and the "own OAuth client" connector flow (see [Securing the endpoint](#securing-the-endpoint-oauth)) still apply on the Render/self-hosted path below, where there's no Horizon gateway in front.
+When connecting Claude.ai to a FastMCP Cloud URL, in the connector's **Authentification** setting pick **"Toujours requis" / "Always required"** (matches what's actually detected from the server — every call needs a token, not just some tools), and for **Client OAuth** pick **"Aucun identifiant client — en enregistrer un automatiquement" / "Register automatically" (DCR)** — not "use your own OAuth client". Claude will then register itself with Horizon's gateway and prompt you to log in with your own Horizon/Prefect account — which is exactly the personal-use access gate this section originally intended, just enforced by Horizon instead of the app. `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`/`MCP_SERVER_URL` and the "own OAuth client" connector flow (see [Securing the endpoint](#securing-the-endpoint-oauth)) still apply on the Render/self-hosted path below, where there's no Horizon gateway in front.
 
 > **⚠️ Security Warning:** if Horizon Authentication is ever off (e.g. on a paid plan) and you haven't set `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`, the endpoint is publicly accessible to anyone who discovers the URL. For full isolation, use the [Local Setup](#local-setup-alternative) (stdio).
+
+**Troubleshooting: connector shows no tools, or tool calls return 403 / JSON-RPC `-32603`.** This is almost always leftover `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`/`MCP_SERVER_URL` env vars on the FastMCP Cloud deployment, creating a double auth layer: Horizon's gateway authenticates the connection and forwards its own token to the app, but the app's own `SingleClientOAuthProvider` then rejects that token because it doesn't match the app's static secret. Delete all three env vars from the deployment's settings, redeploy, and reconnect — the app should run with no `auth=` of its own, leaving Horizon's gateway as the only auth layer. (The dashboard's **Access → Tool Permissions** page defaults every tool to "accessible by all roles", so it's not the place to look for this — no config needed there for a personal single-user deployment.)
 
 An alternative Docker/Render deployment path is documented below if FastMCP Cloud's forced Horizon-account gating doesn't fit your case (e.g. sharing access with someone outside your Horizon org).
 
