@@ -11,116 +11,36 @@ Before you begin you'll need your Intervals.icu credentials:
 1. **API Key** — Log in to [Intervals.icu](https://intervals.icu), go to **Settings → API**, and generate a new API key.
 2. **Athlete ID** — Visible in the URL when you're logged in, e.g. `https://intervals.icu/athlete/i12345/...` → `i12345`.
 
-## Setup — Deploy to FastMCP Cloud (recommended)
+## Setup — Deploy to FastMCP Cloud
 
-The fastest way to get started is to deploy the server to [FastMCP Cloud](https://gofastmcp.com/deployment/fastmcp-cloud) (Prefect Horizon) — a free personal tier, GitHub-connected deploys, and built-in OAuth handling.
+1. Sign in at [horizon.prefect.io](https://horizon.prefect.io) and connect your GitHub account.
+2. Create a new server from your `intervals-mcp-server` fork/repo (branch `develop`). This repo's [`fastmcp.json`](fastmcp.json) already points it at the entrypoint (`src/intervals_mcp_server/server.py`) and dependencies (`pyproject.toml`/`uv.lock`) — leave **Requirements** blank in the deploy form.
+3. Set environment variables:
 
-### 1. Create the deployment
+   | Key | Value |
+   |-----|-------|
+   | `ATHLETE_ID` | Your Intervals.icu athlete ID (e.g. `i12345`) |
+   | `API_KEY` | Your Intervals.icu API key |
 
-This repo already includes a [`fastmcp.json`](fastmcp.json) at the root pointing Horizon at the server entrypoint (`src/intervals_mcp_server/server.py:mcp`) and telling it to install dependencies from this project's `pyproject.toml`/`uv.lock`.
-
-1. Sign in at [horizon.prefect.io](https://horizon.prefect.io) (or run `fastmcp login` locally) and connect your GitHub account.
-2. Create a new server pointing at your `intervals-mcp-server` fork/repo and the branch to deploy (`develop`). It redeploys automatically on every push.
-3. In the deploy form:
-   - **Server name**: whatever you like — this becomes part of your URL (`https://<server-name>.fastmcp.app/mcp`)
-   - **Entrypoint**: `src/intervals_mcp_server/server.py` (auto-detects the `mcp` variable defined there; `server.py` is what imports all the `tools/*.py` modules that register tools via `@mcp.tool()`, so point here, not at `mcp_instance.py`)
-   - **Requirements**: leave blank — the `uv`-based builder auto-detects `pyproject.toml`/`uv.lock` at the repo root
-   - **Environment Variables**: see step 2 below
-
-### 2. Set Environment Variables
-
-In the Horizon dashboard, add:
-
-| Key | Value | Description |
-|-----|-------|-------------|
-| `ATHLETE_ID` | `your_athlete_id` | Your Intervals.icu athlete ID (e.g. `i12345`) |
-| `API_KEY` | `your_api_key` | Your Intervals.icu API key |
-
-Do **not** set `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`/`MCP_SERVER_URL` on FastMCP Cloud — see the auth note below, this app's own OAuth is superseded by Horizon's gateway on this platform. `MCP_TRANSPORT`/`FASTMCP_HOST`/`FASTMCP_PORT` aren't needed either — `fastmcp.json` already sets `http` transport, and Horizon manages the bind host/port itself.
-
-### 3. Deploy and Verify
-
-1. Trigger the deploy (push to the connected branch, or use the dashboard's deploy action)
-2. Note your service URL, e.g. `https://your-server-name.fastmcp.app`
-3. Test by opening `https://your-server-name.fastmcp.app/mcp` in a browser — you should get a response from the server
-
-### Securing the endpoint on FastMCP Cloud
-
-Confirmed by hands-on testing: FastMCP Cloud puts its own OAuth gateway (**Server → Access → Authentication → "Horizon Authentication"**) in front of every deployment, and on the free tier it **cannot be disabled** (turning it off requires a paid plan). This gateway fully replaces this app's own `SingleClientOAuthProvider` — it serves its own `/oauth2/authorize`, `/oauth2/token`, `/oauth2/register` endpoints instead of the app's `/authorize`/`/token`, so `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET` (which only exist inside this app's code) are never reached and are pointless to set here.
-
-When connecting Claude.ai to a FastMCP Cloud URL, in the connector's **Authentification** setting pick **"Toujours requis" / "Always required"** (matches what's actually detected from the server — every call needs a token, not just some tools), and for **Client OAuth** pick **"Aucun identifiant client — en enregistrer un automatiquement" / "Register automatically" (DCR)** — not "use your own OAuth client". Claude will then register itself with Horizon's gateway and prompt you to log in with your own Horizon/Prefect account — which is exactly the personal-use access gate this section originally intended, just enforced by Horizon instead of the app. `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`/`MCP_SERVER_URL` and the "own OAuth client" connector flow (see [Securing the endpoint](#securing-the-endpoint-oauth)) still apply on the Render/self-hosted path below, where there's no Horizon gateway in front.
-
-> **⚠️ Security Warning:** if Horizon Authentication is ever off (e.g. on a paid plan) and you haven't set `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`, the endpoint is publicly accessible to anyone who discovers the URL. For full isolation, use the [Local Setup](#local-setup-alternative) (stdio).
-
-**Troubleshooting: connector shows no tools, or tool calls return 403 / JSON-RPC `-32603`.** This is almost always leftover `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`/`MCP_SERVER_URL` env vars on the FastMCP Cloud deployment, creating a double auth layer: Horizon's gateway authenticates the connection and forwards its own token to the app, but the app's own `SingleClientOAuthProvider` then rejects that token because it doesn't match the app's static secret. Delete all three env vars from the deployment's settings, redeploy, and reconnect — the app should run with no `auth=` of its own, leaving Horizon's gateway as the only auth layer. (The dashboard's **Access → Tool Permissions** page defaults every tool to "accessible by all roles", so it's not the place to look for this — no config needed there for a personal single-user deployment.)
-
-An alternative Docker/Render deployment path is documented below if FastMCP Cloud's forced Horizon-account gating doesn't fit your case (e.g. sharing access with someone outside your Horizon org).
+   Don't set `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`/`MCP_SERVER_URL`/`MCP_TRANSPORT` — see note below.
+4. Deploy. Your server URL is `https://<server-name>.fastmcp.app/mcp`.
 
 <details>
-<summary><strong>Alternative: Deploy to Render (Docker)</strong></summary>
+<summary>OAuth details & troubleshooting</summary>
 
-The `Dockerfile` in this repo also works as a self-hosted, single-instance alternative to FastMCP Cloud — useful if you'd rather run a persistent Render/Docker instance than a serverless one.
+FastMCP Cloud puts its own OAuth gateway ("Horizon Authentication") in front of every deployment; on the free tier it can't be disabled. It fully replaces this app's own `SingleClientOAuthProvider`, so `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`/`MCP_SERVER_URL` are never reached and shouldn't be set here — that env-var trio is only for genuinely self-hosting this app elsewhere (see `auth.py`).
 
-### 1. Create a Web Service on Render
+When connecting a client, use **"Register automatically" (DCR)** for Client OAuth, not "use your own OAuth client" — you'll be prompted to log into your Horizon account, which is the actual access gate on this platform.
 
-1. Go to [render.com](https://render.com) → **New** → **Web Service**
-2. Connect your GitHub repository (`intervals-mcp-server` or your fork)
-3. Configure the service:
-   - **Name**: `intervals-mcp-server` (or your preferred name)
-   - **Branch**: `develop`
-   - **Runtime**: **Docker**
-   - **Instance Type**: Free tier works fine
-
-> **💤 Free tier cold starts:** Render free-tier services sleep after 15 minutes of inactivity. The first request after sleeping may take 30–60 seconds while the container restarts. Subsequent requests are fast. To avoid this, upgrade to a paid instance or use an external cron/ping service to keep it awake.
-
-### 2. Set Environment Variables
-
-In the Render dashboard under **Environment**, add:
-
-| Key | Value | Description |
-|-----|-------|-------------|
-| `MCP_TRANSPORT` | `http` | Enables the remote transport (streamable HTTP) |
-| `FASTMCP_HOST` | `0.0.0.0` | Bind to all interfaces (required inside Docker) |
-| `FASTMCP_PORT` | `8000` | Port the server listens on |
-| `ATHLETE_ID` | `your_athlete_id` | Your Intervals.icu athlete ID (e.g. `i12345`) |
-| `API_KEY` | `your_api_key` | Your Intervals.icu API key |
-
-Optional — enable OAuth 2.0 to protect the endpoint (see [Securing the endpoint](#securing-the-endpoint-oauth)):
-
-| Key | Value | Description |
-|-----|-------|-------------|
-| `MCP_CLIENT_ID` | `intervals-icu` | OAuth client ID; must match the connector config **exactly** |
-| `MCP_CLIENT_SECRET` | `<random secret>` | OAuth client secret / access token; must match the connector |
-| `MCP_SERVER_URL` | `https://your-service-name.onrender.com` | Public HTTPS URL (no `/mcp`); required for OAuth discovery |
-
-### 3. Deploy and Verify
-
-1. Click **Create Web Service** — Render will build the Docker image and deploy
-2. Wait for the build to complete (green status)
-3. Note your service URL: `https://your-service-name.onrender.com`
-4. Test by opening `https://your-service-name.onrender.com/mcp` in a browser — you should get a response from the server
-
-> **⚠️ Security Warning:** Without OAuth (see below), your Render endpoint is publicly accessible — anyone who discovers the URL can query and **mutate** your Intervals.icu data. Either enable OAuth or do not share your service URL publicly. For full isolation, use the [Local Setup](#local-setup-alternative) (stdio).
+**Connector shows no tools, or tool calls return 403 / JSON-RPC `-32603`:** almost always leftover `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET`/`MCP_SERVER_URL` env vars causing a double auth layer (Horizon's gateway forwards its own token, which this app's own OAuth then rejects). Delete those three vars, redeploy, reconnect.
 
 </details>
 
-### Securing the endpoint (OAuth)
-
-Set `MCP_CLIENT_ID`, `MCP_CLIENT_SECRET`, and `MCP_SERVER_URL` (see table above) to require OAuth 2.0 (authorization code + PKCE) on all HTTP requests. Notes:
-
-- The values on the server must match the connector's OAuth Client ID / Secret **exactly** (case-sensitive).
-- `MCP_SERVER_URL` must be the public HTTPS URL **without** `/mcp`; the connector URL must **end** with `/mcp`.
-- Leave all three unset to keep the endpoint unauthenticated.
-
 ## Connecting Claude
 
-1. Open Claude → **Settings** → **Integrations** (or **MCP Servers**)
-2. Click **Add**
-3. Fill in:
-   - **Name:** `Intervals.icu`
-   - **URL:** `https://your-server-name.fastmcp.app/mcp` (must end with `/mcp`)
-   - **On FastMCP Cloud:** for Client OAuth, pick **"Register automatically" (DCR)**, not "use your own OAuth client" — see [Securing the endpoint on FastMCP Cloud](#securing-the-endpoint-on-fastmcp-cloud). You'll be prompted to log in with your Horizon account.
-   - **On Render/self-hosted:** if this app's own OAuth is enabled, pick "use your own OAuth client" and set **OAuth Client ID** = `MCP_CLIENT_ID` and **OAuth Client Secret** = `MCP_CLIENT_SECRET` (exact, case-sensitive match)
+1. Open Claude → **Settings** → **Integrations** (or **MCP Servers**) → **Add**
+2. **Name:** `Intervals.icu`, **URL:** `https://<server-name>.fastmcp.app/mcp`
+3. For Client OAuth, pick **"Register automatically" (DCR)** and log in with your Horizon account when prompted
 
 Open a new conversation and ask "What MCP tools do you have available?" to confirm the connection.
 
@@ -187,20 +107,12 @@ Once connected, the following tools are available:
 
 > **Structured workouts:** pass steps via `workout_doc`. The server renders them to Intervals.icu workout-builder text so the platform parses them and draws the step chart. Use renderable target units — power `%ftp`/`w`, HR `%hr`/`%lthr`, pace `%pace` or absolute pace (e.g. `4:30/km`); avoid `pace_zone`/`power_zone` for pace runs.
 
-## Troubleshooting Render Deployment
-
-- **Service won't start** — Check Render logs for build errors. Ensure all environment variables are set.
-- **Claude/ChatGPT can't connect** — Verify the URL ends with `/mcp` and is publicly accessible. Try opening it in a browser.
-- **"Authorization failed" with OAuth** — `MCP_CLIENT_ID`/`MCP_CLIENT_SECRET` must match the connector exactly (case-sensitive), `MCP_SERVER_URL` must be the public HTTPS URL without `/mcp`, and the connector URL must end with `/mcp`. Remove and re-add the connector to clear cached credentials.
-- **API errors** — Double-check your `ATHLETE_ID` and `API_KEY` values. Verify your Intervals.icu API key is valid.
-- **Free tier cold starts** — Render free-tier services sleep after inactivity. The first request may take 30–60 seconds to wake up.
-
 ---
 
 <details>
 <summary><strong>Local Setup (alternative)</strong></summary>
 
-If you prefer to run the server on your own machine instead of Render, follow the steps below.
+If you prefer to run the server on your own machine instead of FastMCP Cloud, follow the steps below.
 
 ### Requirements
 
