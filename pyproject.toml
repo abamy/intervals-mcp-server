@@ -10,11 +10,14 @@ readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.12"
 license = { text = "GPL-3.0-only" }
 authors = [{ name = "Marc Vilanova", email = "barker-riddle.8z@icloud.com" }]
-# mcp capped below 2.0: the 2026-07-28 spec (shipped in mcp 2.0) changes the
-# OAuth/auth surface used by auth.py plus error codes and deprecations. Prod
-# resolves this unbounded, so the cap keeps it on the tested 1.x line until the
-# OAuth flow is verified against 2.x. Bump deliberately after testing.
-dependencies = ["mcp[cli]>=1.22,<2.0", "httpx>=0.25.0", "python-dotenv>=1.0.0"]
+# Server runs on the standalone fastmcp package (required for FastMCP Cloud
+# deployment), which pulls in mcp>=2.0,<3.0 itself. mcp is also imported
+# directly (auth.py, tests) for the OAuth authorization-server protocol, so it
+# is pinned explicitly here too rather than left as a transitive dependency.
+# mcp 2.0 implements the 2026-07-28 spec (auth-hardening SEPs, error code
+# changes, Roots/Sampling/Logging deprecations) — the OAuth flow has been
+# tested end-to-end against this line; bump the cap deliberately after retesting.
+dependencies = ["fastmcp>=4.0,<5.0", "mcp>=2.0,<3.0", "httpx>=0.25.0", "python-dotenv>=1.0.0"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",

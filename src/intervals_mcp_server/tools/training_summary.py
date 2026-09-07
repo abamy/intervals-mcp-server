@@ -464,7 +464,7 @@ def _build_result(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Training Summary", readOnlyHint=True, destructiveHint=False
+        title="Get Training Summary", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_training_summary(

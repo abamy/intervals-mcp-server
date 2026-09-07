@@ -7,7 +7,8 @@ This module handles transport configuration and server startup logic.
 import os
 import logging
 
-from mcp.server.fastmcp import FastMCP  # pylint: disable=import-error
+import fastmcp
+from fastmcp import FastMCP
 
 from intervals_mcp_server.utils.types import TransportAliases
 
@@ -52,17 +53,19 @@ def start_server(mcp_instance: FastMCP, transport: TransportAliases) -> None:
         mcp_instance (FastMCP): The FastMCP server instance to start.
         transport (TransportAliases): The transport type to use.
     """
-    host = mcp_instance.settings.host
-    port = mcp_instance.settings.port
-
     if transport == TransportAliases.STDIO:
         logger.info("Starting MCP server with stdio transport.")
         mcp_instance.run()
     else:  # STREAMABLE_HTTP
+        # fastmcp reads host/port from its own global settings (FASTMCP_HOST/
+        # FASTMCP_PORT) only once, at process start, so read them fresh here
+        # rather than relying on that cached default.
+        host = os.getenv("FASTMCP_HOST", "127.0.0.1")
+        port = int(os.getenv("FASTMCP_PORT", "8000"))
         logger.info(
             "Starting MCP server with Streamable HTTP transport at http://%s:%s%s.",
             host,
             port,
-            mcp_instance.settings.streamable_http_path,
+            fastmcp.settings.streamable_http_path,
         )
-        mcp_instance.run(transport="streamable-http")
+        mcp_instance.run(transport="streamable-http", host=host, port=port)

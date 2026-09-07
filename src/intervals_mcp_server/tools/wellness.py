@@ -21,7 +21,9 @@ config = get_config()
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Get Wellness Data", readOnlyHint=True, destructiveHint=False)
+    annotations=ToolAnnotations(
+        title="Get Wellness Data", read_only_hint=True, destructive_hint=False
+    )
 )
 async def get_wellness_data(
     athlete_id: str = "",

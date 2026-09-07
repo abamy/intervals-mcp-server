@@ -32,7 +32,9 @@ def _format_activity_list(activities: list[dict[str, Any]], header: str) -> str:
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Search Activities", readOnlyHint=True, destructiveHint=False)
+    annotations=ToolAnnotations(
+        title="Search Activities", read_only_hint=True, destructive_hint=False
+    )
 )
 async def search_activities(
     query: str,
@@ -73,7 +75,9 @@ async def search_activities(
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Interval Search", readOnlyHint=True, destructiveHint=False)
+    annotations=ToolAnnotations(
+        title="Interval Search", read_only_hint=True, destructive_hint=False
+    )
 )
 async def interval_search(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     min_secs: int,
@@ -138,7 +142,7 @@ async def interval_search(  # pylint: disable=too-many-arguments,too-many-positi
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activities Around", readOnlyHint=True, destructiveHint=False
+        title="Get Activities Around", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activities_around(
@@ -182,7 +186,7 @@ async def get_activities_around(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activities by IDs", readOnlyHint=True, destructiveHint=False
+        title="Get Activities by IDs", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activities_by_ids(
@@ -225,7 +229,9 @@ async def get_activities_by_ids(
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Get Activity Tags", readOnlyHint=True, destructiveHint=False)
+    annotations=ToolAnnotations(
+        title="Get Activity Tags", read_only_hint=True, destructive_hint=False
+    )
 )
 async def get_activity_tags(
     athlete_id: str = "",

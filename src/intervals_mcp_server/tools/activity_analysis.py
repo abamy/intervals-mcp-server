@@ -23,7 +23,7 @@ CURVE_TYPES = {"hr", "pace", "power", "power-multi"}
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Curve", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Curve", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_curve(  # pylint: disable=too-many-arguments,too-many-positional-arguments
@@ -80,7 +80,7 @@ async def get_activity_curve(  # pylint: disable=too-many-arguments,too-many-pos
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Best Efforts", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Best Efforts", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_best_efforts(  # pylint: disable=too-many-arguments,too-many-positional-arguments
@@ -142,7 +142,7 @@ async def get_activity_best_efforts(  # pylint: disable=too-many-arguments,too-m
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Segments", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Segments", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_segments(activity_id: str, api_key: str = "") -> str:
@@ -158,7 +158,7 @@ async def get_activity_segments(activity_id: str, api_key: str = "") -> str:
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Time at HR", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Time at HR", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_time_at_hr(activity_id: str, api_key: str = "") -> str:
@@ -174,7 +174,7 @@ async def get_activity_time_at_hr(activity_id: str, api_key: str = "") -> str:
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Weather Summary", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Weather Summary", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_weather_summary(
@@ -209,7 +209,7 @@ async def get_activity_weather_summary(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Interval Stats", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Interval Stats", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_interval_stats(
@@ -238,7 +238,9 @@ async def get_activity_interval_stats(
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Get Activity Map", readOnlyHint=True, destructiveHint=False)
+    annotations=ToolAnnotations(
+        title="Get Activity Map", read_only_hint=True, destructive_hint=False
+    )
 )
 async def get_activity_map(
     activity_id: str,
@@ -276,7 +278,7 @@ async def get_activity_map(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Power vs HR", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Power vs HR", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_power_vs_hr(activity_id: str, api_key: str = "") -> str:
@@ -292,7 +294,7 @@ async def get_activity_power_vs_hr(activity_id: str, api_key: str = "") -> str:
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity HR Load Model", readOnlyHint=True, destructiveHint=False
+        title="Get Activity HR Load Model", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_hr_load_model(activity_id: str, api_key: str = "") -> str:
@@ -308,7 +310,7 @@ async def get_activity_hr_load_model(activity_id: str, api_key: str = "") -> str
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Power Spike Model", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Power Spike Model", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_power_spike_model(activity_id: str, api_key: str = "") -> str:

@@ -5,7 +5,7 @@
 This is a **Model Context Protocol (MCP) server** that connects Claude and other MCP clients to the [Intervals.icu](https://intervals.icu) training platform API. It exposes MCP tools for reading and managing athlete data: activities, events, workouts, wellness metrics, and more.
 
 - **Language**: Python 3.12+
-- **Framework**: FastMCP (from the `mcp` package)
+- **Framework**: FastMCP (the standalone `fastmcp` package, not the `mcp` SDK's bundled `mcp.server.fastmcp.FastMCP` — required for FastMCP Cloud deployment). `mcp` (>=2.0,<3.0) is still a direct dependency for the OAuth authorization-server protocol used by `auth.py`.
 - **HTTP client**: `httpx` (async)
 - **Package manager**: `uv`
 - **Linter/formatter**: `ruff`
@@ -248,6 +248,8 @@ Intervals.icu parses/computes/renders steps only when sent as workout-builder DS
 doc wins. Always emit steps via `str(WorkoutDoc)` into `description`. `_power`/`_pace` are resolved OUTPUT fields, never inputs.
 
 ### OAuth / HTTP transport
-Activates only when `MCP_CLIENT_ID` + `MCP_CLIENT_SECRET` are set (`auth.py`, `mcp_instance.py`). Gotchas: IDs/secret must match the connector exactly (case-sensitive) and the connector URL must end in `/mcp`; `resource_server_url` must be set
-(RFC 9728 metadata); the client must set `token_endpoint_auth_method="client_secret_post"` (mcp >= 1.23 defaults to None → 401 "Unsupported auth method"); `validate_scope` accepts empty scope; prod resolves mcp unbounded (>=1.4.0) so test OAuth
-against the latest SDK.
+Activates only when `MCP_CLIENT_ID` + `MCP_CLIENT_SECRET` are set (`auth.py`, `mcp_instance.py`). `SingleClientOAuthProvider` subclasses `fastmcp.server.auth.OAuthProvider`, which itself subclasses `mcp.server.auth.provider.OAuthAuthorizationServerProvider[AuthorizationCode, RefreshToken, AccessToken]` (all from `mcp.server.auth.provider`/`fastmcp.server.auth`, fixed generic params — do not
+swap in ad hoc dataclasses for those three types or mypy's LSP check fails). Gotchas: IDs/secret must match the connector exactly (case-sensitive) and the connector URL must end in `/mcp`; `resource_base_url` must be set on the provider
+(RFC 9728 metadata); the client must set `token_endpoint_auth_method="client_secret_post"` (mcp >= 1.23 defaults to None → 401 "Unsupported auth method"); `validate_scope` accepts empty scope; `mcp` is pinned `>=2.0,<3.0` (bumped from `<2.0` for
+the `fastmcp` migration — the OAuth flow has been tested end-to-end against this line, see `git log auth.py`) so test OAuth against the latest SDK in that range before bumping further. FastMCP Cloud's scaling model is undocumented; the
+in-memory authorization-code store in `auth.py` assumes a single long-lived process, so verify the full connector OAuth flow manually after any redeploy.

@@ -119,7 +119,7 @@ def _format_activities_response(
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Get Activities", readOnlyHint=True, destructiveHint=False)
+    annotations=ToolAnnotations(title="Get Activities", read_only_hint=True, destructive_hint=False)
 )
 async def get_activities(  # pylint: disable=too-many-arguments,too-many-return-statements,too-many-branches,too-many-positional-arguments
     athlete_id: str = "",
@@ -186,7 +186,7 @@ async def get_activities(  # pylint: disable=too-many-arguments,too-many-return-
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Details", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Details", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_details(activity_id: str, api_key: str = "") -> str:
@@ -231,7 +231,7 @@ async def get_activity_details(activity_id: str, api_key: str = "") -> str:
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Intervals", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Intervals", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_intervals(activity_id: str, api_key: str = "") -> str:
@@ -273,7 +273,7 @@ async def get_activity_intervals(activity_id: str, api_key: str = "") -> str:
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Histogram", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Histogram", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_histogram(
@@ -328,7 +328,7 @@ async def get_activity_histogram(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Streams", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Streams", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_streams(
@@ -411,7 +411,7 @@ async def get_activity_streams(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Get Activity Messages", readOnlyHint=True, destructiveHint=False
+        title="Get Activity Messages", read_only_hint=True, destructive_hint=False
     )
 )
 async def get_activity_messages(activity_id: str, api_key: str = "") -> str:
@@ -447,7 +447,7 @@ async def get_activity_messages(activity_id: str, api_key: str = "") -> str:
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Add Activity Message", readOnlyHint=False, destructiveHint=False
+        title="Add Activity Message", read_only_hint=False, destructive_hint=False
     )
 )
 async def add_activity_message(
@@ -483,7 +483,9 @@ async def add_activity_message(
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Update Activity", readOnlyHint=False, destructiveHint=False)
+    annotations=ToolAnnotations(
+        title="Update Activity", read_only_hint=False, destructive_hint=False
+    )
 )
 async def update_activity(
     activity_id: str,
@@ -517,7 +519,9 @@ async def update_activity(
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Delete Activity", readOnlyHint=False, destructiveHint=True)
+    annotations=ToolAnnotations(
+        title="Delete Activity", read_only_hint=False, destructive_hint=True
+    )
 )
 async def delete_activity(activity_id: str, api_key: str = "") -> str:
     """Permanently delete an activity from Intervals.icu.
@@ -543,7 +547,7 @@ async def delete_activity(activity_id: str, api_key: str = "") -> str:
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Create Manual Activity", readOnlyHint=False, destructiveHint=False
+        title="Create Manual Activity", read_only_hint=False, destructive_hint=False
     )
 )
 async def create_manual_activity(
@@ -585,7 +589,7 @@ async def create_manual_activity(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Bulk Create Manual Activities", readOnlyHint=False, destructiveHint=False
+        title="Bulk Create Manual Activities", read_only_hint=False, destructive_hint=False
     )
 )
 async def bulk_create_manual_activities(

@@ -109,7 +109,7 @@ def _strip_folder(folder: dict[str, Any], requesting_athlete_id: str = "") -> di
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        readOnlyHint=True, destructiveHint=False, title="Get Workout Folders"
+        read_only_hint=True, destructive_hint=False, title="Get Workout Folders"
     )
 )
 async def get_workout_folders(
@@ -196,7 +196,7 @@ def _find_folder_children(
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, title="List Workouts")
+    annotations=ToolAnnotations(read_only_hint=True, destructive_hint=False, title="List Workouts")
 )
 async def list_workouts(
     athlete_id: str = "",
@@ -293,7 +293,7 @@ async def list_workouts(
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, title="Get Workout")
+    annotations=ToolAnnotations(read_only_hint=True, destructive_hint=False, title="Get Workout")
 )
 async def get_workout(
     workout_id: int,
@@ -333,8 +333,8 @@ async def get_workout(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        readOnlyHint=False,
-        destructiveHint=False,
+        read_only_hint=False,
+        destructive_hint=False,
         title="Create Library Workout",
     )
 )
@@ -410,8 +410,8 @@ async def create_workout(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        readOnlyHint=False,
-        destructiveHint=False,
+        read_only_hint=False,
+        destructive_hint=False,
         title="Update Library Workout",
     )
 )
@@ -487,8 +487,8 @@ async def update_workout(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        readOnlyHint=False,
-        destructiveHint=False,
+        read_only_hint=False,
+        destructive_hint=False,
         title="Schedule Workout to Calendar",
     )
 )

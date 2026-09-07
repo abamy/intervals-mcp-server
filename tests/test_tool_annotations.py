@@ -3,6 +3,7 @@ Tests to verify that all MCP tools have the required annotations
 (title, readOnlyHint, destructiveHint) per Anthropic Software Directory Policy §5.E.
 """
 
+import asyncio
 import os
 import pathlib
 import sys
@@ -137,10 +138,8 @@ EXPECTED_ANNOTATIONS = {
 
 def _get_tool_map() -> dict:
     """Build a mapping of tool name to Tool object from the mcp instance."""
-    tools = {}
-    for tool in mcp._tool_manager._tools.values():
-        tools[tool.name] = tool
-    return tools
+    tools = asyncio.run(mcp.list_tools())
+    return {tool.name: tool for tool in tools}
 
 
 def test_all_tools_have_annotations():
@@ -170,9 +169,9 @@ def test_all_tools_have_read_only_hint():
     for tool_name, expected in EXPECTED_ANNOTATIONS.items():
         tool = tool_map[tool_name]
         assert tool.annotations is not None
-        assert tool.annotations.readOnlyHint == expected["readOnlyHint"], (
+        assert tool.annotations.read_only_hint == expected["readOnlyHint"], (
             f"Tool '{tool_name}' readOnlyHint mismatch: "
-            f"expected {expected['readOnlyHint']}, got {tool.annotations.readOnlyHint}"
+            f"expected {expected['readOnlyHint']}, got {tool.annotations.read_only_hint}"
         )
 
 
@@ -182,9 +181,9 @@ def test_all_tools_have_destructive_hint():
     for tool_name, expected in EXPECTED_ANNOTATIONS.items():
         tool = tool_map[tool_name]
         assert tool.annotations is not None
-        assert tool.annotations.destructiveHint == expected["destructiveHint"], (
+        assert tool.annotations.destructive_hint == expected["destructiveHint"], (
             f"Tool '{tool_name}' destructiveHint mismatch: "
-            f"expected {expected['destructiveHint']}, got {tool.annotations.destructiveHint}"
+            f"expected {expected['destructiveHint']}, got {tool.annotations.destructive_hint}"
         )
 
 
@@ -194,9 +193,9 @@ def test_no_tool_missing_annotations():
     for tool_name, tool in tool_map.items():
         assert tool.annotations is not None, f"Tool '{tool_name}' is missing annotations"
         assert tool.annotations.title is not None, f"Tool '{tool_name}' is missing title annotation"
-        assert tool.annotations.readOnlyHint is not None, (
+        assert tool.annotations.read_only_hint is not None, (
             f"Tool '{tool_name}' is missing readOnlyHint annotation"
         )
-        assert tool.annotations.destructiveHint is not None, (
+        assert tool.annotations.destructive_hint is not None, (
             f"Tool '{tool_name}' is missing destructiveHint annotation"
         )

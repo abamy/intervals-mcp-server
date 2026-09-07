@@ -128,7 +128,9 @@ async def _delete_events_list(
 RACE_CATEGORIES = "RACE_A,RACE_B,RACE_C"
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Races", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Get Races", read_only_hint=True, destructive_hint=False)
+)
 async def get_races(
     athlete_id: str = "",
     api_key: str = "",
@@ -196,7 +198,9 @@ async def get_races(
     return races_summary
 
 
-@mcp.tool(annotations=ToolAnnotations(title="Get Events", readOnlyHint=True, destructiveHint=False))
+@mcp.tool(
+    annotations=ToolAnnotations(title="Get Events", read_only_hint=True, destructive_hint=False)
+)
 async def get_events(
     athlete_id: str = "",
     api_key: str = "",
@@ -277,7 +281,9 @@ async def get_events(
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Get Event by ID", readOnlyHint=True, destructiveHint=False)
+    annotations=ToolAnnotations(
+        title="Get Event by ID", read_only_hint=True, destructive_hint=False
+    )
 )
 async def get_event_by_id(
     event_id: str,
@@ -316,7 +322,7 @@ async def get_event_by_id(
 
 
 @mcp.tool(
-    annotations=ToolAnnotations(title="Delete Event", readOnlyHint=False, destructiveHint=True)
+    annotations=ToolAnnotations(title="Delete Event", read_only_hint=False, destructive_hint=True)
 )
 async def delete_event(
     event_id: str,
@@ -368,7 +374,7 @@ async def _fetch_events_for_deletion(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Delete Events by Date Range", readOnlyHint=False, destructiveHint=True
+        title="Delete Events by Date Range", read_only_hint=False, destructive_hint=True
     )
 )
 async def delete_events_by_date_range(
@@ -402,7 +408,7 @@ async def delete_events_by_date_range(
 
 @mcp.tool(
     annotations=ToolAnnotations(
-        title="Add or Update Event", readOnlyHint=False, destructiveHint=False
+        title="Add or Update Event", read_only_hint=False, destructive_hint=False
     )
 )
 async def add_or_update_event(  # pylint: disable=too-many-arguments,too-many-positional-arguments
