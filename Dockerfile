@@ -8,7 +8,10 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        build-essential \
        curl \
+       tzdata \
     && rm -rf /var/lib/apt/lists/*
+
+ENV TZ=Asia/Tokyo
 
 # Install uv (used to install dependencies from the lockfile)
 RUN pip install --no-cache-dir uv
