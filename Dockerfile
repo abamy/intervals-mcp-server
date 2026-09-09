@@ -31,3 +31,13 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 # Default command to run the MCP server using stdio transport
 CMD ["python", "src/intervals_mcp_server/server.py"]
+
+# TimeZone
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential \
+       curl \
+       tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV TZ=Asia/Tokyo
